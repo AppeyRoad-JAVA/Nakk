@@ -21,7 +21,8 @@ package com.appeyroad.nakk;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.view.Window;
+import android.view.*;
+import android.widget.Button;
 
 public class MainActivity extends Activity {
 
@@ -30,5 +31,21 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
+
+        Button button = (Button) findViewById(R.id.button);
+        button.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                setContentView(R.layout.activity_main2);
+            }
+        });
+
+        Button button2 = (Button) findViewById(R.id.button2);
+        button2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                System.exit(1);
+            }
+        });
     }
 }
