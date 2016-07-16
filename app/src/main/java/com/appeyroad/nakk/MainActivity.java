@@ -20,12 +20,15 @@
 package com.appeyroad.nakk;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.*;
+import android.view.View;
+import android.view.Window;
 import android.widget.Button;
+import android.widget.ImageView;
 
 public class MainActivity extends Activity {
-
+    ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,5 +50,18 @@ public class MainActivity extends Activity {
                 System.exit(1);
             }
         });
+
+        /*ImageView imageView = (ImageView) findViewById(R.id.imageView2);
+        imageView.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                Intent intent = new Intent(getApplicationContext(), BattleActivity.class);
+                startActivity(intent);
+            }
+        });*/
+    }
+    public void onPlacesClicked(View v){
+        Intent intent = new Intent(getApplicationContext(), BattleActivity.class);
+        startActivity(intent);
     }
 }
