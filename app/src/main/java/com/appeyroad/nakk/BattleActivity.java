@@ -32,15 +32,14 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class BattleActivity extends AppCompatActivity{
-    public ProgressBar gaugeBar;
-    public boolean onBattle;
-    public Button button;
-    public Button button1;
-    RelativeLayout layout;
 
-    Timer timer;
-    TimerTask pull;
-    Handler handler = new Handler();
+    private ProgressBar gaugeBar;
+    private boolean onBattle;
+    private Button button;
+
+    private TimerTask pull;
+    private Handler handler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,14 +57,14 @@ public class BattleActivity extends AppCompatActivity{
                 beginBattle();
             }
         });
-        button1 = (Button) findViewById(R.id.button_battle_back);
+        Button button1 = (Button) findViewById(R.id.button_battle_back);
         button1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 finish();
             }
         });
-        layout = (RelativeLayout) findViewById(R.id.layout_battle);
+        RelativeLayout layout = (RelativeLayout) findViewById(R.id.layout_battle);
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,14 +77,14 @@ public class BattleActivity extends AppCompatActivity{
             }
         });
     }
-    public void beginBattle() {
+    private void beginBattle() {
         onBattle = true;
         gaugeBar.setMax(1000);
         gaugeBar.setProgress(200);
         gaugeBar.setVisibility(View.VISIBLE);
         button.setEnabled(false);
 
-        timer = new Timer();
+        Timer timer = new Timer();
         pull = new TimerTask() {
             public void run() {
                 gaugeBar.setProgress(gaugeBar.getProgress() - 40);
@@ -96,7 +95,7 @@ public class BattleActivity extends AppCompatActivity{
         };
         timer.scheduleAtFixedRate(pull, 0, 500);
     }
-    public void endBattle(boolean win){
+    private void endBattle(boolean win){
         onBattle = false;
         handler.post(new Runnable() {
             @Override
