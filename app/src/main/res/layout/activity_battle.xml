@@ -2,7 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_floating_material_light">
+    android:background="@color/background_floating_material_light"
+    android:id="@+id/layout">
 
     <ImageView
         android:layout_width="match_parent"
@@ -30,5 +31,38 @@
         android:layout_toStartOf="@+id/imageView4"
         android:layout_marginTop="-65dp"
         android:layout_marginRight="-15dp"/>
+
+    <ProgressBar
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:max="100"
+        android:progress="10"
+        android:layout_marginLeft="75dp"
+        android:layout_marginTop="75dp"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/imageView5"
+        android:layout_toStartOf="@+id/imageView5"
+        android:progressBackgroundTint="@android:color/holo_blue_bright"
+        android:progressTint="@android:color/holo_red_light" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="전투시작"
+        android:id="@+id/button3"
+        android:layout_alignTop="@+id/imageView4"
+        android:layout_alignLeft="@+id/progressBar"
+        android:layout_alignStart="@+id/progressBar" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="나가기"
+        android:id="@+id/button4"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
