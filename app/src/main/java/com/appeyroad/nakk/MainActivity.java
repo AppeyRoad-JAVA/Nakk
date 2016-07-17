@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
         });*/
     }
     public void onPlacesClicked(View v){
-        Intent intent = new Intent(getApplicationContext(), BattleActivity.class);
+        Intent intent = new Intent(this, BattleActivity.class);
         startActivity(intent);
     }
 }
