@@ -29,7 +29,7 @@
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/imageView"
+        android:id="@+id/imageView_main_start"
         android:src="@drawable/screen_start"
         android:layout_centerVertical="true" />
 
@@ -38,9 +38,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="시작하기"
-        android:id="@+id/button"
+        android:id="@+id/button_main_start"
         android:layout_marginBottom="82dp"
-        android:layout_alignBottom="@+id/imageView"
+        android:layout_alignBottom="@+id/imageView_main_start"
         android:layout_centerHorizontal="true" />
 
     <Button
@@ -48,8 +48,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="종료"
-        android:id="@+id/button2"
-        android:layout_alignTop="@+id/button"
+        android:id="@+id/button_main_exit"
+        android:layout_alignTop="@+id/button_main_start"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="43dp" />
 

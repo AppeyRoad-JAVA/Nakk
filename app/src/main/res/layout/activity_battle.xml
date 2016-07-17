@@ -3,18 +3,18 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_floating_material_light"
-    android:id="@+id/layout">
+    android:id="@+id/layout_battle">
 
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/imageView3"
+        android:id="@+id/imageView_battle_background"
         android:src="@drawable/background_battle" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView4"
+        android:id="@+id/imageView_battle_user"
         android:src="@drawable/user_fishing"
         android:layout_marginRight="130dp"
         android:layout_marginBottom="115dp"
@@ -24,11 +24,11 @@
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/imageView5"
+        android:id="@+id/imageView_battle_rod"
         android:src="@drawable/rod_normal"
-        android:layout_alignTop="@+id/imageView4"
-        android:layout_toLeftOf="@+id/imageView4"
-        android:layout_toStartOf="@+id/imageView4"
+        android:layout_alignTop="@+id/imageView_battle_user"
+        android:layout_toLeftOf="@+id/imageView_battle_user"
+        android:layout_toStartOf="@+id/imageView_battle_user"
         android:layout_marginTop="-65dp"
         android:layout_marginRight="-15dp"/>
 
@@ -36,14 +36,14 @@
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
+        android:id="@+id/progressBar_battle_gauge"
         android:max="100"
         android:progress="10"
         android:layout_marginLeft="75dp"
         android:layout_marginTop="75dp"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/imageView5"
-        android:layout_toStartOf="@+id/imageView5"
+        android:layout_toLeftOf="@+id/imageView_battle_rod"
+        android:layout_toStartOf="@+id/imageView_battle_rod"
         android:progressBackgroundTint="@android:color/holo_blue_bright"
         android:progressTint="@android:color/holo_red_light" />
 
@@ -51,16 +51,16 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="전투시작"
-        android:id="@+id/button3"
-        android:layout_alignTop="@+id/imageView4"
-        android:layout_alignLeft="@+id/progressBar"
-        android:layout_alignStart="@+id/progressBar" />
+        android:id="@+id/button_battle_begin"
+        android:layout_alignTop="@+id/imageView_battle_user"
+        android:layout_alignLeft="@+id/progressBar_battle_gauge"
+        android:layout_alignStart="@+id/progressBar_battle_gauge" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="나가기"
-        android:id="@+id/button4"
+        android:id="@+id/button_battle_back"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />

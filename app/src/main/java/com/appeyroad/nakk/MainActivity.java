@@ -25,17 +25,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.ImageView;
 
 public class MainActivity extends Activity {
-    ImageView imageView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_main);
 
-        Button button = (Button) findViewById(R.id.button);
+        Button button = (Button) findViewById(R.id.button_main_start);
         button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v){
@@ -43,7 +41,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        Button button2 = (Button) findViewById(R.id.button2);
+        Button button2 = (Button) findViewById(R.id.button_main_exit);
         button2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -51,7 +49,7 @@ public class MainActivity extends Activity {
             }
         });
 
-        /*ImageView imageView = (ImageView) findViewById(R.id.imageView2);
+        /*ImageView imageView = (ImageView) findViewById(R.id.imageView_main2_places);
         imageView.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){

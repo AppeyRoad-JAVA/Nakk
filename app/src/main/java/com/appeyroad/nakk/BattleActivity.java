@@ -18,8 +18,8 @@ import java.util.TimerTask;
 public class BattleActivity extends Activity{
     public ProgressBar gaugeBar;
     public boolean onBattle;
-    public Button button3;
-    public Button button4;
+    public Button button;
+    public Button button1;
     RelativeLayout layout;
 
     Timer timer;
@@ -31,25 +31,25 @@ public class BattleActivity extends Activity{
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.activity_battle);
 
-        gaugeBar = (ProgressBar) findViewById(R.id.progressBar);
+        gaugeBar = (ProgressBar) findViewById(R.id.progressBar_battle_gauge);
         gaugeBar.setVisibility(View.INVISIBLE);
         onBattle = false;
 
-        button3 = (Button) findViewById(R.id.button3);
-        button3.setOnClickListener(new View.OnClickListener() {
+        button = (Button) findViewById(R.id.button_battle_begin);
+        button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 beginBattle();
             }
         });
-        button4 = (Button) findViewById(R.id.button4);
-        button4.setOnClickListener(new View.OnClickListener(){
+        button1 = (Button) findViewById(R.id.button_battle_back);
+        button1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 finish();
             }
         });
-        layout = (RelativeLayout) findViewById(R.id.layout);
+        layout = (RelativeLayout) findViewById(R.id.layout_battle);
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -67,7 +67,7 @@ public class BattleActivity extends Activity{
         gaugeBar.setMax(1000);
         gaugeBar.setProgress(200);
         gaugeBar.setVisibility(View.VISIBLE);
-        button3.setEnabled(false);
+        button.setEnabled(false);
 
         timer = new Timer();
         pull = new TimerTask() {
@@ -86,7 +86,7 @@ public class BattleActivity extends Activity{
             @Override
             public void run() {
                 gaugeBar.setVisibility(View.INVISIBLE);
-                button3.setEnabled(true);
+                button.setEnabled(true);
             }
         });
         pull.cancel();
