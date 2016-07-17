@@ -19,9 +19,9 @@
 
 package com.appeyroad.nakk;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -31,7 +31,7 @@ import android.widget.RelativeLayout;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class BattleActivity extends Activity{
+public class BattleActivity extends AppCompatActivity{
     public ProgressBar gaugeBar;
     public boolean onBattle;
     public Button button;
