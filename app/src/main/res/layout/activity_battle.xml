@@ -40,17 +40,6 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true" />
 
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView_battle_rod"
-        android:src="@drawable/rod_normal"
-        android:layout_alignTop="@+id/imageView_battle_user"
-        android:layout_toLeftOf="@+id/imageView_battle_user"
-        android:layout_toStartOf="@+id/imageView_battle_user"
-        android:layout_marginTop="-65dp"
-        android:layout_marginRight="-15dp"/>
-
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
         android:layout_width="match_parent"
@@ -60,9 +49,9 @@
         android:progress="10"
         android:layout_marginLeft="75dp"
         android:layout_marginTop="75dp"
+        android:layout_marginRight="30dp"
         android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/imageView_battle_rod"
-        android:layout_toStartOf="@+id/imageView_battle_rod"
+        android:layout_toLeftOf="@+id/framelayout_battle"
         android:progressBackgroundTint="@android:color/holo_blue_bright"
         android:progressTint="@android:color/holo_red_light" />
 
@@ -83,5 +72,29 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/imageView_battle_user"
+        android:layout_toStartOf="@+id/imageView_battle_user"
+        android:layout_alignTop="@+id/imageView_battle_user"
+        android:layout_marginTop="-35dp"
+        android:layout_marginRight="-5dp"
+        android:id="@+id/framelayout_battle">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView_battle_rod_bent"
+            android:src="@drawable/rod_bent"
+            android:layout_gravity="bottom|right"
+            android:visibility="invisible" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/imageView_battle_rod_normal"
+            android:src="@drawable/rod_normal"
+            android:layout_gravity="right" />
+    </FrameLayout>
 
 </RelativeLayout>

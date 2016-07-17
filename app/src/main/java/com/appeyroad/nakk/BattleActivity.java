@@ -24,6 +24,7 @@ import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
@@ -31,10 +32,11 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class BattleActivity extends AppCompatActivity{
-
     private ProgressBar gaugeBar;
     private boolean onBattle;
     private Button button;
+    private ImageView imageView1;
+    private ImageView imageView2;
 
     private TimerTask pull;
     private Handler handler = new Handler();
@@ -47,6 +49,9 @@ public class BattleActivity extends AppCompatActivity{
         gaugeBar = (ProgressBar) findViewById(R.id.progressBar_battle_gauge);
         gaugeBar.setVisibility(View.INVISIBLE);
         onBattle = false;
+
+        imageView1 = (ImageView) findViewById(R.id.imageView_battle_rod_normal);
+        imageView2 = (ImageView) findViewById(R.id.imageView_battle_rod_bent);
 
         button = (Button) findViewById(R.id.button_battle_begin);
         button.setOnClickListener(new View.OnClickListener() {
@@ -81,6 +86,8 @@ public class BattleActivity extends AppCompatActivity{
         gaugeBar.setProgress(200);
         gaugeBar.setVisibility(View.VISIBLE);
         button.setEnabled(false);
+        imageView1.setVisibility(View.INVISIBLE);
+        imageView2.setVisibility(View.VISIBLE);
 
         Timer timer = new Timer();
         pull = new TimerTask() {
@@ -102,6 +109,8 @@ public class BattleActivity extends AppCompatActivity{
                 button.setEnabled(true);
             }
         });
+        imageView1.setVisibility(View.VISIBLE);
+        imageView2.setVisibility(View.INVISIBLE);
         pull.cancel();
     }
 }
