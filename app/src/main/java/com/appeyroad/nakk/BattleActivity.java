@@ -39,6 +39,7 @@ public class BattleActivity extends AppCompatActivity{
     private ImageView imageView2;
 
     private TimerTask pull;
+    private TimerTask stuck;
     private Handler handler = new Handler();
 
     @Override
@@ -53,13 +54,14 @@ public class BattleActivity extends AppCompatActivity{
         imageView1 = (ImageView) findViewById(R.id.imageView_battle_rod_normal);
         imageView2 = (ImageView) findViewById(R.id.imageView_battle_rod_bent);
 
-        button = (Button) findViewById(R.id.button_battle_begin);
+        /*button = (Button) findViewById(R.id.button_battle_begin);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 beginBattle();
             }
-        });
+        });*/
+
         Button button1 = (Button) findViewById(R.id.button_battle_back);
         button1.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -79,15 +81,44 @@ public class BattleActivity extends AppCompatActivity{
                 }
             }
         });
+
+        imageView1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Timer timer = new Timer();
+                stuck = new TimerTask() {
+                    public void run() {
+                        double random = Math.random();
+                        if(random<=0.04){
+                            stuck.cancel();
+                            beginBattle();
+                        }
+                    }
+                };
+                timer.scheduleAtFixedRate(stuck, 0, 100);
+            }
+        });
     }
     private void beginBattle() {
+        if(onBattle==true){
+            return;
+        }
         onBattle = true;
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                gaugeBar.setVisibility(View.VISIBLE);
+                //button.setEnabled(true);
+                imageView1.setVisibility(View.INVISIBLE);
+                imageView2.setVisibility(View.VISIBLE);
+            }
+        });
         gaugeBar.setMax(1000);
         gaugeBar.setProgress(200);
-        gaugeBar.setVisibility(View.VISIBLE);
-        button.setEnabled(false);
-        imageView1.setVisibility(View.INVISIBLE);
-        imageView2.setVisibility(View.VISIBLE);
+
+       /* if(stuck!=null) {
+            stuck.cancel();
+        }*/
 
         Timer timer = new Timer();
         pull = new TimerTask() {
@@ -101,16 +132,20 @@ public class BattleActivity extends AppCompatActivity{
         timer.scheduleAtFixedRate(pull, 0, 500);
     }
     private void endBattle(boolean win){
+        if(onBattle==false){
+            return;
+        }
         onBattle = false;
         handler.post(new Runnable() {
             @Override
             public void run() {
                 gaugeBar.setVisibility(View.INVISIBLE);
-                button.setEnabled(true);
+                //button.setEnabled(true);
+                imageView1.setVisibility(View.VISIBLE);
+                imageView2.setVisibility(View.INVISIBLE);
             }
         });
-        imageView1.setVisibility(View.VISIBLE);
-        imageView2.setVisibility(View.INVISIBLE);
+
         pull.cancel();
     }
 }

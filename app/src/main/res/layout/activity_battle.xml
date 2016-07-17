@@ -62,7 +62,8 @@
         android:id="@+id/button_battle_begin"
         android:layout_alignTop="@+id/imageView_battle_user"
         android:layout_alignLeft="@+id/progressBar_battle_gauge"
-        android:layout_alignStart="@+id/progressBar_battle_gauge" />
+        android:layout_alignStart="@+id/progressBar_battle_gauge"
+        android:visibility="invisible" />
 
     <Button
         android:layout_width="wrap_content"
@@ -94,7 +95,7 @@
             android:layout_height="wrap_content"
             android:id="@+id/imageView_battle_rod_normal"
             android:src="@drawable/rod_normal"
-            android:layout_gravity="right" />
+            android:layout_gravity="right"/>
     </FrameLayout>
 
 </RelativeLayout>
