@@ -70,16 +70,6 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="전투시작"
-        android:id="@+id/button_battle_begin"
-        android:layout_alignTop="@+id/imageView_battle_user"
-        android:layout_alignLeft="@+id/progressBar_battle_tension"
-        android:layout_alignStart="@+id/progressBar_battle_tension"
-        android:visibility="invisible" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
         android:text="나가기"
         android:id="@+id/button_battle_back"
         android:layout_alignParentTop="true"

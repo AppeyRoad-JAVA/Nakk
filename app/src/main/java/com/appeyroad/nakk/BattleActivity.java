@@ -41,8 +41,7 @@ import java.util.TimerTask;
 public class BattleActivity extends AppCompatActivity{
     private ProgressBar tensionBar;
     private boolean onBattle;
-    //private Button button;
-    private Button button2;
+    private Button button;
     private ImageView imageView1;
     private ImageView imageView2;
     private ImageView imageView3;
@@ -85,13 +84,6 @@ public class BattleActivity extends AppCompatActivity{
 
         layout = (RelativeLayout) findViewById(R.id.layout_battle);
         layout2 = (FrameLayout) findViewById(R.id.framelayout_battle);
-        /*button = (Button) findViewById(R.id.button_battle_begin);
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                beginBattle();
-            }
-        });*/
 
         Button button1 = (Button) findViewById(R.id.button_battle_back);
         button1.setOnClickListener(new View.OnClickListener(){
@@ -141,8 +133,8 @@ public class BattleActivity extends AppCompatActivity{
                 return true;
             }
         });
-        button2 = (Button) findViewById(R.id.button_battle_reel);
-        button2.setOnTouchListener(new View.OnTouchListener() {
+        button = (Button) findViewById(R.id.button_battle_reel);
+        button.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
                 if(event.getAction()==MotionEvent.ACTION_DOWN){
@@ -164,8 +156,7 @@ public class BattleActivity extends AppCompatActivity{
             @Override
             public void run() {
                 tensionBar.setVisibility(View.VISIBLE);
-                //button.setEnabled(false);
-                button2.setEnabled(true);
+                button.setEnabled(true);
                 imageView1.setVisibility(View.INVISIBLE);
                 imageView2.setVisibility(View.VISIBLE);
                 tensionBar.setMax(400);
@@ -238,8 +229,7 @@ public class BattleActivity extends AppCompatActivity{
             @Override
             public void run() {
                 tensionBar.setVisibility(View.INVISIBLE);
-                //button.setEnabled(true);
-                button2.setEnabled(false);
+                button.setEnabled(false);
                 imageView1.setVisibility(View.VISIBLE);
                 imageView2.setVisibility(View.INVISIBLE);
                 line.setVisibility(View.INVISIBLE);
