@@ -25,20 +25,32 @@
     android:id="@+id/layout_battle">
 
     <ImageView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/imageView_battle_background"
-        android:src="@drawable/background_battle" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView_battle_water"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:src="@drawable/battle_water" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView_battle_land"
+        android:src="@drawable/battle_land"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/imageView_battle_user"
         android:src="@drawable/user_fishing"
-        android:layout_marginRight="130dp"
-        android:layout_marginBottom="115dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true" />
+        android:layout_above="@+id/imageView_battle_land"
+        android:layout_alignRight="@+id/imageView_battle_land"
+        android:layout_alignEnd="@+id/imageView_battle_land"
+        android:layout_marginRight="120dp"/>
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"

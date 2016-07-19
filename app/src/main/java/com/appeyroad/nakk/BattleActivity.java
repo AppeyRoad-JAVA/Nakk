@@ -19,14 +19,20 @@
 
 package com.appeyroad.nakk;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
+import android.util.DisplayMetrics;
+import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Timer;
@@ -39,11 +45,17 @@ public class BattleActivity extends AppCompatActivity{
     private Button button2;
     private ImageView imageView1;
     private ImageView imageView2;
+    private ImageView imageView3;
     private TextView textView;
+    private Line line;
+    private RelativeLayout layout;
+    private FrameLayout layout2;
 
     private TimerTask battle;
     private TimerTask stuck;
     private Handler handler = new Handler();
+
+    private int waterLevel;
 
     private double maxStrength;
     private double strength;
@@ -64,7 +76,13 @@ public class BattleActivity extends AppCompatActivity{
 
         imageView1 = (ImageView) findViewById(R.id.imageView_battle_rod_normal);
         imageView2 = (ImageView) findViewById(R.id.imageView_battle_rod_bent);
+        imageView3 = (ImageView) findViewById(R.id.imageView_battle_water);
+        waterLevel=imageView3.getTop();
 
+        textView=(TextView) findViewById(R.id.textView_battle_debug);
+
+        layout = (RelativeLayout) findViewById(R.id.layout_battle);
+        layout2 = (FrameLayout) findViewById(R.id.framelayout_battle);
         /*button = (Button) findViewById(R.id.button_battle_begin);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -81,28 +99,46 @@ public class BattleActivity extends AppCompatActivity{
             }
         });
 
-        imageView1.setOnClickListener(new View.OnClickListener() {
+        imageView3.setOnTouchListener(new View.OnTouchListener() {
             @Override
-            public void onClick(View view) {
-                Timer timer = new Timer();
-                if (stuck != null) {
-                    stuck.cancel();
+            public boolean onTouch(View view, MotionEvent event) {
+                if(onBattle)
+                    return true;
+                if(line!=null){
+                    line.toX = (int)event.getX()+imageView3.getLeft();
+                    line.toY = (int)event.getY()+imageView3.getTop();
+                    line.cutY(waterLevel);
+                    line.invalidate();
                 }
-                stuck = new TimerTask() {
-                    public void run() {
-                        double random = Math.random();
-                        if(random<=0.04){
-                            this.cancel();
-                            beginBattle();
-                        }
+                else {
+                    waterLevel=imageView3.getTop();
+                    line = new Line(getApplicationContext(), Color.BLACK, imageView1.getLeft() + layout2.getLeft(),
+                            imageView1.getTop() + layout2.getTop(), (int) event.getX() + imageView3.getLeft(), (int) event.getY() + waterLevel);
+                    line.cutY(waterLevel);
+                    layout.addView(line);
+                }
+
+                if(event.getAction()==MotionEvent.ACTION_UP) {
+                    Timer timer = new Timer();
+                    if (stuck != null) {
+                        stuck.cancel();
                     }
-                };
-                timer.scheduleAtFixedRate(stuck, 0, 100);
+                    stuck = new TimerTask() {
+                        public void run() {
+                            double random = Math.random();
+                            if (random <= 0.04) {
+                                this.cancel();
+                                beginBattle();
+                            }
+                        }
+                    };
+                    timer.scheduleAtFixedRate(stuck, 0, 100);
+                }
+                return true;
             }
         });
         button2 = (Button) findViewById(R.id.button_battle_reel);
         button2.setOnTouchListener(new View.OnTouchListener() {
-            TimerTask reel;
             @Override
             public boolean onTouch(View view, MotionEvent event) {
                 if(event.getAction()==MotionEvent.ACTION_DOWN){
@@ -114,7 +150,6 @@ public class BattleActivity extends AppCompatActivity{
                 return false;
             }
         });
-        textView=(TextView) findViewById(R.id.textView_battle_debug);
     }
     private void beginBattle() {
         if(onBattle){
@@ -131,6 +166,14 @@ public class BattleActivity extends AppCompatActivity{
                 imageView2.setVisibility(View.VISIBLE);
                 tensionBar.setMax(400);
                 tensionBar.setProgress(0);
+
+                Display dis = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
+                DisplayMetrics metrics = new DisplayMetrics();
+                dis.getMetrics(metrics);
+                line.fromX = imageView2.getLeft()+layout2.getLeft();
+                line.fromY = imageView2.getTop()+layout2.getTop()+6*metrics.densityDpi/160;
+                line.cutY(waterLevel);
+                line.invalidate();
             }
         });
 
@@ -171,11 +214,10 @@ public class BattleActivity extends AppCompatActivity{
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        textView.setText("");
-                        textView.append("distance: "+(int)distance);
+                        textView.setText("distance: "+(int)distance);
                         textView.append("\ntension: "+(int)tension);
-                        textView.append("\nstrength: "+(int)strength);
-                        textView.append("\nhp: "+(int)hp);
+                        textView.append("\nfish strength: "+(int)strength);
+                        textView.append("\nfish hp: "+(int)hp);
                         tensionBar.setProgress((int)tension);
                     }
                 });
@@ -183,7 +225,7 @@ public class BattleActivity extends AppCompatActivity{
         };
         timer.scheduleAtFixedRate(battle, 0, 100);
     }
-    private void endBattle(boolean win){
+    private void endBattle(final boolean win){
         if(!onBattle){
             return;
         }
@@ -196,9 +238,11 @@ public class BattleActivity extends AppCompatActivity{
                 button2.setEnabled(false);
                 imageView1.setVisibility(View.VISIBLE);
                 imageView2.setVisibility(View.INVISIBLE);
+                line.setVisibility(View.INVISIBLE);
+                layout.removeView(line);
+                line = null;
             }
         });
-
         reeling=false;
         battle.cancel();
     }
