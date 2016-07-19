@@ -46,6 +46,7 @@ public class BattleActivity extends AppCompatActivity{
     private ImageView imageView1;
     private ImageView imageView2;
     private ImageView imageView3;
+    private ImageView imageView4;
     private TextView textView;
     private Line line;
     private RelativeLayout layout;
@@ -77,6 +78,7 @@ public class BattleActivity extends AppCompatActivity{
         imageView1 = (ImageView) findViewById(R.id.imageView_battle_rod_normal);
         imageView2 = (ImageView) findViewById(R.id.imageView_battle_rod_bent);
         imageView3 = (ImageView) findViewById(R.id.imageView_battle_water);
+        imageView4 = (ImageView) findViewById(R.id.imageView_battle_land);
         waterLevel=imageView3.getTop();
 
         textView=(TextView) findViewById(R.id.textView_battle_debug);
@@ -104,18 +106,20 @@ public class BattleActivity extends AppCompatActivity{
             public boolean onTouch(View view, MotionEvent event) {
                 if(onBattle)
                     return true;
-                if(line!=null){
-                    line.toX = (int)event.getX()+imageView3.getLeft();
-                    line.toY = (int)event.getY()+imageView3.getTop();
-                    line.cutY(waterLevel);
-                    line.invalidate();
-                }
-                else {
-                    waterLevel=imageView3.getTop();
-                    line = new Line(getApplicationContext(), Color.BLACK, imageView1.getLeft() + layout2.getLeft(),
-                            imageView1.getTop() + layout2.getTop(), (int) event.getX() + imageView3.getLeft(), (int) event.getY() + waterLevel);
-                    line.cutY(waterLevel);
-                    layout.addView(line);
+                if(event.getX()>=0 && event.getX()<imageView4.getLeft()-imageView3.getLeft() &&
+                        event.getY()>=0 && event.getY()<=imageView3.getBottom()-imageView3.getTop()){
+                    if (line != null) {
+                        line.toX = (int) event.getX() + imageView3.getLeft();
+                        line.toY = (int) event.getY() + imageView3.getTop();
+                        line.cutY(waterLevel);
+                        line.invalidate();
+                    } else {
+                        waterLevel = imageView3.getTop();
+                        line = new Line(getApplicationContext(), Color.BLACK, imageView1.getLeft() + layout2.getLeft(),
+                                imageView1.getTop() + layout2.getTop(), (int) event.getX() + imageView3.getLeft(), (int) event.getY() + waterLevel);
+                        line.cutY(waterLevel);
+                        layout.addView(line);
+                    }
                 }
 
                 if(event.getAction()==MotionEvent.ACTION_UP) {
