@@ -46,6 +46,7 @@ public class BattleActivity extends AppCompatActivity{
     private ImageView imageView2;
     private ImageView imageView3;
     private ImageView imageView4;
+    private ImageView imageView5;
     private TextView textView;
     private Line line;
     private RelativeLayout layout;
@@ -64,7 +65,11 @@ public class BattleActivity extends AppCompatActivity{
     private double tension;
     private double maxHp;
     private double hp;
+
     private boolean reeling;
+    private double reelW; //angular velocity
+    private double pivotX;
+    private double pivotY;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,6 +83,7 @@ public class BattleActivity extends AppCompatActivity{
         imageView2 = (ImageView) findViewById(R.id.imageView_battle_rod_bent);
         imageView3 = (ImageView) findViewById(R.id.imageView_battle_water);
         imageView4 = (ImageView) findViewById(R.id.imageView_battle_land);
+        imageView5 = (ImageView) findViewById(R.id.imageView_battle_reel);
         waterLevel=imageView3.getTop();
 
         textView=(TextView) findViewById(R.id.textView_battle_debug);
@@ -128,12 +134,35 @@ public class BattleActivity extends AppCompatActivity{
                             }
                         }
                     };
+                    textView.setText("");
                     timer.scheduleAtFixedRate(stuck, 0, 100);
                 }
                 return true;
             }
         });
-        button = (Button) findViewById(R.id.button_battle_reel);
+
+        imageView5.setOnTouchListener(new View.OnTouchListener() {
+            double prevAngle;
+            double curAngle;
+            @Override
+            public boolean onTouch(View view, MotionEvent event) {
+                curAngle = Math.atan2(event.getY()-pivotY, event.getX()-pivotX);
+                if(event.getAction()==MotionEvent.ACTION_DOWN){
+                    reeling = true;
+                    prevAngle=curAngle;
+                }
+                else if(event.getAction()==MotionEvent.ACTION_UP){
+                    reeling = false;
+                }
+                reelW=curAngle-prevAngle;
+                if(prevAngle>Math.PI/3 && curAngle < -Math.PI/3){
+                    reelW+=2*Math.PI;
+                }
+                prevAngle=curAngle;
+                return true;
+            }
+        });
+        /*button = (Button) findViewById(R.id.button_battle_reel);
         button.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent event) {
@@ -145,18 +174,20 @@ public class BattleActivity extends AppCompatActivity{
                 }
                 return false;
             }
-        });
+        });*/
     }
     private void beginBattle() {
         if(onBattle){
             return;
         }
+        pivotX = (double)(imageView5.getWidth())/2;
+        pivotY = (double)(imageView5.getHeight())/2;
         onBattle = true;
         handler.post(new Runnable() {
             @Override
             public void run() {
                 tensionBar.setVisibility(View.VISIBLE);
-                button.setEnabled(true);
+                //button.setEnabled(true);
                 imageView1.setVisibility(View.INVISIBLE);
                 imageView2.setVisibility(View.VISIBLE);
                 tensionBar.setMax(400);
@@ -189,10 +220,21 @@ public class BattleActivity extends AppCompatActivity{
 
                 strength = (maxStrength*hp)/maxHp+weight;
 
-                if(reeling) {
+                /*if(reeling) {
                     tension += Math.abs(tension - 200) / 20 + 10;
                 }
                 else {
+                    if(tension>strength){
+                        tension-=Math.abs(tension - strength)/4+20;
+                    }
+                    else {
+                        tension -= 5;
+                    }
+                }*/
+                if(reeling){
+                    tension+=reelW*20;
+                }
+                else{
                     if(tension>strength){
                         tension-=Math.abs(tension - strength)/4+20;
                     }
@@ -229,7 +271,7 @@ public class BattleActivity extends AppCompatActivity{
             @Override
             public void run() {
                 tensionBar.setVisibility(View.INVISIBLE);
-                button.setEnabled(false);
+                //button.setEnabled(false);
                 imageView1.setVisibility(View.VISIBLE);
                 imageView2.setVisibility(View.INVISIBLE);
                 line.setVisibility(View.INVISIBLE);

@@ -48,9 +48,8 @@
         android:id="@+id/imageView_battle_user"
         android:src="@drawable/user_fishing"
         android:layout_above="@+id/imageView_battle_land"
-        android:layout_alignRight="@+id/imageView_battle_land"
-        android:layout_alignEnd="@+id/imageView_battle_land"
-        android:layout_marginRight="120dp"/>
+        android:layout_alignRight="@+id/imageView_battle_water"
+        android:layout_alignEnd="@+id/imageView_battle_water" />
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
@@ -65,7 +64,7 @@
         android:layout_alignParentTop="true"
         android:layout_toLeftOf="@+id/framelayout_battle"
         android:progressBackgroundTint="@android:color/holo_blue_bright"
-        android:progressTint="@android:color/holo_red_light" />
+        android:progressTint="#ff00ff00" />
 
     <Button
         android:layout_width="wrap_content"
@@ -107,7 +106,8 @@
         android:id="@+id/button_battle_reel"
         android:layout_alignParentBottom="true"
         android:layout_alignRight="@+id/button_battle_back"
-        android:layout_alignEnd="@+id/button_battle_back" />
+        android:layout_alignEnd="@+id/button_battle_back"
+        android:visibility="invisible" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -117,5 +117,15 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:textSize="20dp" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView_battle_reel"
+        android:src="@drawable/battle_reel"
+        android:alpha="0.6"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
 </RelativeLayout>
