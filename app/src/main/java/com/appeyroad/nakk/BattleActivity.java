@@ -34,7 +34,7 @@ import java.util.TimerTask;
 public class BattleActivity extends AppCompatActivity{
     private ProgressBar gaugeBar;
     private boolean onBattle;
-    private Button button;
+    //private Button button;
     private ImageView imageView1;
     private ImageView imageView2;
 
@@ -69,6 +69,7 @@ public class BattleActivity extends AppCompatActivity{
                 finish();
             }
         });
+
         RelativeLayout layout = (RelativeLayout) findViewById(R.id.layout_battle);
         layout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -86,11 +87,14 @@ public class BattleActivity extends AppCompatActivity{
             @Override
             public void onClick(View view) {
                 Timer timer = new Timer();
+                if (stuck != null) {
+                    stuck.cancel();
+                }
                 stuck = new TimerTask() {
                     public void run() {
                         double random = Math.random();
                         if(random<=0.04){
-                            stuck.cancel();
+                            this.cancel();
                             beginBattle();
                         }
                     }
@@ -115,10 +119,6 @@ public class BattleActivity extends AppCompatActivity{
         });
         gaugeBar.setMax(1000);
         gaugeBar.setProgress(200);
-
-       /* if(stuck!=null) {
-            stuck.cancel();
-        }*/
 
         Timer timer = new Timer();
         pull = new TimerTask() {
