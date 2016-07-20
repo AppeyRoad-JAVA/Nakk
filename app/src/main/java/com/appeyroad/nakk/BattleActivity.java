@@ -41,7 +41,6 @@ import java.util.TimerTask;
 public class BattleActivity extends AppCompatActivity{
     private ProgressBar tensionBar;
     private boolean onBattle;
-    private Button button;
     private ImageView imageView1;
     private ImageView imageView2;
     private ImageView imageView3;
@@ -154,27 +153,17 @@ public class BattleActivity extends AppCompatActivity{
                 else if(event.getAction()==MotionEvent.ACTION_UP){
                     reeling = false;
                 }
-                reelW=curAngle-prevAngle;
-                if(prevAngle>Math.PI/3 && curAngle < -Math.PI/3){
+                reelW+=curAngle-prevAngle;
+                if(prevAngle > Math.PI*2/3 && curAngle < -Math.PI*2/3){
                     reelW+=2*Math.PI;
+                }
+                if(prevAngle < -Math.PI*2/3 && curAngle > Math.PI*2/3){
+                    reelW-=2*Math.PI;
                 }
                 prevAngle=curAngle;
                 return true;
             }
         });
-        /*button = (Button) findViewById(R.id.button_battle_reel);
-        button.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent event) {
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    reeling=true;
-                }
-                else if(event.getAction()==MotionEvent.ACTION_UP){
-                    reeling=false;
-                }
-                return false;
-            }
-        });*/
     }
     private void beginBattle() {
         if(onBattle){
@@ -187,7 +176,6 @@ public class BattleActivity extends AppCompatActivity{
             @Override
             public void run() {
                 tensionBar.setVisibility(View.VISIBLE);
-                //button.setEnabled(true);
                 imageView1.setVisibility(View.INVISIBLE);
                 imageView2.setVisibility(View.VISIBLE);
                 tensionBar.setMax(400);
@@ -220,19 +208,8 @@ public class BattleActivity extends AppCompatActivity{
 
                 strength = (maxStrength*hp)/maxHp+weight;
 
-                /*if(reeling) {
-                    tension += Math.abs(tension - 200) / 20 + 10;
-                }
-                else {
-                    if(tension>strength){
-                        tension-=Math.abs(tension - strength)/4+20;
-                    }
-                    else {
-                        tension -= 5;
-                    }
-                }*/
                 if(reeling){
-                    tension+=reelW*20;
+                    tension+=reelW*10;
                 }
                 else{
                     if(tension>strength){
@@ -242,6 +219,7 @@ public class BattleActivity extends AppCompatActivity{
                         tension -= 5;
                     }
                 }
+                reelW=0;
 
                 if(tension>400 || tension<strength/4)
                     endBattle(false);
@@ -271,7 +249,6 @@ public class BattleActivity extends AppCompatActivity{
             @Override
             public void run() {
                 tensionBar.setVisibility(View.INVISIBLE);
-                //button.setEnabled(false);
                 imageView1.setVisibility(View.VISIBLE);
                 imageView2.setVisibility(View.INVISIBLE);
                 line.setVisibility(View.INVISIBLE);
