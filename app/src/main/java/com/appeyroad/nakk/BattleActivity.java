@@ -40,7 +40,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class BattleActivity extends AppCompatActivity{
-    private final int BATTLE_FRAME=20;
+    private final int BATTLE_FRAME=30;
     private ProgressBar tensionBar;
     private boolean onBattle;
     private ImageView imageView1;
@@ -63,6 +63,7 @@ public class BattleActivity extends AppCompatActivity{
     private double strength;
     private double weight;
     private double distance;
+    private double length;
     private double tension;
     private double maxHp;
     private double hp;
@@ -70,10 +71,8 @@ public class BattleActivity extends AppCompatActivity{
 
     private int state; //LOOSING = 0, HOLDING = 1, REELING = 2
     private final int LOOSING=0;
-    private final int HOLDING=1;
-    private final int REELING=2;
+    private final int REELING=1;
 
-    private int holdPeriod;
     private double reelW; //angular velocity
     private double pivotX;
     private double pivotY;
@@ -155,8 +154,7 @@ public class BattleActivity extends AppCompatActivity{
             public boolean onTouch(View view, MotionEvent event) {
                 curAngle = Math.atan2(event.getY()-pivotY, event.getX()-pivotX);
                 if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    state=HOLDING;
-                    holdPeriod=0;
+                    state=REELING;
                     prevAngle=curAngle;
                 }
                 else if(event.getAction()==MotionEvent.ACTION_UP){
@@ -190,7 +188,7 @@ public class BattleActivity extends AppCompatActivity{
                 tensionBar.setVisibility(View.VISIBLE);
                 imageView1.setVisibility(View.INVISIBLE);
                 imageView2.setVisibility(View.VISIBLE);
-                tensionBar.setMax(400);
+                tensionBar.setMax(600);
                 tensionBar.setProgress(0);
 
                 Display dis = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
@@ -203,7 +201,8 @@ public class BattleActivity extends AppCompatActivity{
             }
         });
 
-        distance=1050;
+        distance=1020;
+        length=1000;
         maxStrength=150;
         strength=maxStrength;
         weight=100;
@@ -212,55 +211,38 @@ public class BattleActivity extends AppCompatActivity{
 
         maxHp=1000;
         hp=maxHp;
-
+        reelW=0;
         Timer timer = new Timer();
         battle = new TimerTask() {
+            double ratio = 1-Math.pow(0.9, 5.0/BATTLE_FRAME);
+            double ratio2 = 1-Math.pow(0.75, 5.0/BATTLE_FRAME);
             public void run() {
-                distance-=reelW*50;
+                length-=reelW*5;
+                strength = (maxStrength*hp)/maxHp+weight;
+                if(state==REELING){
+                    tension = ((distance-length)*25)*0.25 + tension*0.75;
+                }
+                else if(state==LOOSING){
+                    tension-=tension*ratio2 + 30*ratio2;
+                    length-=(tension-strength)*ratio;
+                    /*if(strength>tension) {
+                        distance += (strength - tension)*(4.0)/BATTLE_FRAME;
+                    }*/
+                }
+                distance-=(tension-strength)*ratio;
+                if(distance<length){
+                    distance=length;
+                }
                 if(distance<50) endBattle(true);
 
-                strength = (maxStrength*hp)/maxHp+weight;
-                if(state!=LOOSING) {
-                    if (Math.abs(reelW) < 0.05) {
-                        holdPeriod++;
-                        if (holdPeriod >= 3) {
-                            state = HOLDING;
-                        }
-                    } else {
-                        holdPeriod = 0;
-                        state = REELING;
-                    }
-                }
-
-                if(state==REELING){
-                    tension+=reelW*30-20.0/BATTLE_FRAME;
-                }
-                else if(state==HOLDING){
-                    if(tension>strength){
-                        double ratio = 1-Math.pow(0.75, 5.0/BATTLE_FRAME);
-                        tension-=Math.abs(tension - strength)*ratio + 40*ratio;
-                    }
-                    else {
-                        tension -= 20.0/BATTLE_FRAME;
-                    }
-                }
-                else{
-                    double ratio = 1-Math.pow(0.75, 5.0/BATTLE_FRAME);
-                    tension-=tension*ratio + 40*ratio;
-                    if(strength>tension) {
-                        distance += (strength - tension)*(4.0)/BATTLE_FRAME;
-                    }
-                }
-                reelW=0;
-
-                if(tension>300) {
+                if(tension>450) {
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
                             tensionBar.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
                         }
                     });
-                    durability -= (tension - 300)*(1.0/BATTLE_FRAME);
+                    durability -= (tension - 450)*(1.0/BATTLE_FRAME);
                     if(durability<0){
                         endBattle(false);
                         return;
@@ -276,17 +258,17 @@ public class BattleActivity extends AppCompatActivity{
                 }
                 reelW=0;
 
-                if(tension>400 || tension<strength/4) {
+                if(tension>600 || tension<strength/4) {
                     endBattle(false);
-                    return;
                 }
-                if(tension>=200)
-                    hp-=(tension-200)*(2.0/BATTLE_FRAME);
+                if(tension>=300)
+                    hp-=(tension-300)*(2.0/BATTLE_FRAME);
                 if(hp<0)    hp=0;
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
                         textView.setText("distance: "+(int)distance);
+                        textView.append("\nlength: "+(int)length);
                         textView.append("\ntension: "+(int)tension);
                         textView.append("\nfish strength: "+(int)strength);
                         textView.append("\nfish hp: "+(int)hp);
