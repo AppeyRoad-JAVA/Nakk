@@ -20,6 +20,7 @@
 package com.appeyroad.nakk;
 
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -65,8 +66,14 @@ public class BattleActivity extends AppCompatActivity{
     private double tension;
     private double maxHp;
     private double hp;
+    private double durability;
 
-    private boolean reeling;
+    private int state; //LOOSING = 0, HOLDING = 1, REELING = 2
+    private final int LOOSING=0;
+    private final int HOLDING=1;
+    private final int REELING=2;
+
+    private int holdPeriod;
     private double reelW; //angular velocity
     private double pivotX;
     private double pivotY;
@@ -91,8 +98,8 @@ public class BattleActivity extends AppCompatActivity{
         layout = (RelativeLayout) findViewById(R.id.layout_battle);
         layout2 = (FrameLayout) findViewById(R.id.framelayout_battle);
 
-        Button button1 = (Button) findViewById(R.id.button_battle_back);
-        button1.setOnClickListener(new View.OnClickListener(){
+        Button button = (Button) findViewById(R.id.button_battle_back);
+        button.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view){
                 finish();
@@ -148,14 +155,16 @@ public class BattleActivity extends AppCompatActivity{
             public boolean onTouch(View view, MotionEvent event) {
                 curAngle = Math.atan2(event.getY()-pivotY, event.getX()-pivotX);
                 if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    reeling = true;
+                    state=HOLDING;
+                    holdPeriod=0;
                     prevAngle=curAngle;
                 }
                 else if(event.getAction()==MotionEvent.ACTION_UP){
-                    reeling = false;
+                    state=LOOSING;
                 }
+
                 reelW+=curAngle-prevAngle;
-                if(prevAngle > Math.PI*2/3 && curAngle < -Math.PI*2/3){
+                if(prevAngle>Math.PI*2/3 && curAngle < -Math.PI*2/3){
                     reelW+=2*Math.PI;
                 }
                 if(prevAngle < -Math.PI*2/3 && curAngle > Math.PI*2/3){
@@ -166,6 +175,8 @@ public class BattleActivity extends AppCompatActivity{
             }
         });
     }
+
+
     private void beginBattle() {
         if(onBattle){
             return;
@@ -197,33 +208,78 @@ public class BattleActivity extends AppCompatActivity{
         strength=maxStrength;
         weight=100;
         tension=200;
+        durability=100;
 
         maxHp=1000;
         hp=maxHp;
+
         Timer timer = new Timer();
         battle = new TimerTask() {
             public void run() {
-                distance-=(tension-strength)*(1.0/BATTLE_FRAME);
+                distance-=reelW*50;
                 if(distance<50) endBattle(true);
 
                 strength = (maxStrength*hp)/maxHp+weight;
-
-                if(reeling){
-                    tension+=reelW*10;
+                if(state!=LOOSING) {
+                    if (Math.abs(reelW) < 0.05) {
+                        holdPeriod++;
+                        if (holdPeriod >= 3) {
+                            state = HOLDING;
+                        }
+                    } else {
+                        holdPeriod = 0;
+                        state = REELING;
+                    }
                 }
-                else{
+
+                if(state==REELING){
+                    tension+=reelW*30-20.0/BATTLE_FRAME;
+                }
+                else if(state==HOLDING){
                     if(tension>strength){
                         double ratio = 1-Math.pow(0.75, 5.0/BATTLE_FRAME);
-                        tension-=Math.abs(tension - strength)*ratio + 80*ratio;
+                        tension-=Math.abs(tension - strength)*ratio + 40*ratio;
                     }
                     else {
-                        tension -= 50.0/BATTLE_FRAME;
+                        tension -= 20.0/BATTLE_FRAME;
+                    }
+                }
+                else{
+                    double ratio = 1-Math.pow(0.75, 5.0/BATTLE_FRAME);
+                    tension-=tension*ratio + 40*ratio;
+                    if(strength>tension) {
+                        distance += (strength - tension)*(4.0)/BATTLE_FRAME;
                     }
                 }
                 reelW=0;
 
-                if(tension>400 || tension<strength/4)
+                if(tension>300) {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            tensionBar.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+                        }
+                    });
+                    durability -= (tension - 300)*(1.0/BATTLE_FRAME);
+                    if(durability<0){
+                        endBattle(false);
+                        return;
+                    }
+                }
+                else{
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            tensionBar.getProgressDrawable().clearColorFilter();
+                        }
+                    });
+                }
+                reelW=0;
+
+                if(tension>400 || tension<strength/4) {
                     endBattle(false);
+                    return;
+                }
                 if(tension>=200)
                     hp-=(tension-200)*(2.0/BATTLE_FRAME);
                 if(hp<0)    hp=0;
@@ -257,7 +313,7 @@ public class BattleActivity extends AppCompatActivity{
                 line = null;
             }
         });
-        reeling=false;
+        state=LOOSING;
         battle.cancel();
     }
 }
