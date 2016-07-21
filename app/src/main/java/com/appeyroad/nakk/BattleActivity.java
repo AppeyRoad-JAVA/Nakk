@@ -39,6 +39,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class BattleActivity extends AppCompatActivity{
+    private final int BATTLE_FRAME=20;
     private ProgressBar tensionBar;
     private boolean onBattle;
     private ImageView imageView1;
@@ -199,11 +200,10 @@ public class BattleActivity extends AppCompatActivity{
 
         maxHp=1000;
         hp=maxHp;
-
         Timer timer = new Timer();
         battle = new TimerTask() {
             public void run() {
-                distance-=(tension-strength)/10;
+                distance-=(tension-strength)*(1.0/BATTLE_FRAME);
                 if(distance<50) endBattle(true);
 
                 strength = (maxStrength*hp)/maxHp+weight;
@@ -213,10 +213,11 @@ public class BattleActivity extends AppCompatActivity{
                 }
                 else{
                     if(tension>strength){
-                        tension-=Math.abs(tension - strength)/4+20;
+                        double ratio = 1-Math.pow(0.75, 5.0/BATTLE_FRAME);
+                        tension-=Math.abs(tension - strength)*ratio + 80*ratio;
                     }
                     else {
-                        tension -= 5;
+                        tension -= 50.0/BATTLE_FRAME;
                     }
                 }
                 reelW=0;
@@ -224,7 +225,7 @@ public class BattleActivity extends AppCompatActivity{
                 if(tension>400 || tension<strength/4)
                     endBattle(false);
                 if(tension>=200)
-                    hp-=(tension-200)/5;
+                    hp-=(tension-200)*(2.0/BATTLE_FRAME);
                 if(hp<0)    hp=0;
                 handler.post(new Runnable() {
                     @Override
@@ -238,7 +239,7 @@ public class BattleActivity extends AppCompatActivity{
                 });
             }
         };
-        timer.scheduleAtFixedRate(battle, 0, 100);
+        timer.scheduleAtFixedRate(battle, 0, 1000/BATTLE_FRAME);
     }
     private void endBattle(final boolean win){
         if(!onBattle){
