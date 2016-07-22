@@ -206,24 +206,25 @@ public class BattleActivity extends AppCompatActivity{
         maxStrength=150;
         strength=maxStrength;
         weight=100;
-        tension=200;
+        tension=300;
         durability=100;
 
         maxHp=1000;
         hp=maxHp;
         reelW=0;
+
         Timer timer = new Timer();
         battle = new TimerTask() {
-            double ratio = 1-Math.pow(0.9, 5.0/BATTLE_FRAME);
+            double ratio = 1-Math.pow(0.9, 4.0/BATTLE_FRAME);
             double ratio2 = 1-Math.pow(0.75, 5.0/BATTLE_FRAME);
             public void run() {
-                length-=reelW*5;
+                length-=reelW*10;
                 strength = (maxStrength*hp)/maxHp+weight;
                 if(state==REELING){
-                    tension = ((distance-length)*25)*0.25 + tension*0.75;
+                    tension = ((distance-length)*10)*0.25 + tension*0.75;
                 }
                 else if(state==LOOSING){
-                    tension-=tension*ratio2 + 30*ratio2;
+                    tension-=tension*ratio2 + 20*ratio2;
                     length-=(tension-strength)*ratio;
                     /*if(strength>tension) {
                         distance += (strength - tension)*(4.0)/BATTLE_FRAME;
