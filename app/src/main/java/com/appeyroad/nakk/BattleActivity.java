@@ -150,25 +150,31 @@ public class BattleActivity extends AppCompatActivity{
         imageView5.setOnTouchListener(new View.OnTouchListener() {
             double prevAngle;
             double curAngle;
+            float prevX; float prevY;
+            float curX; float curY;
             @Override
             public boolean onTouch(View view, MotionEvent event) {
-                curAngle = Math.atan2(event.getY()-pivotY, event.getX()-pivotX);
+                curX=event.getX();
+                curY=event.getY();
+                curAngle = Math.atan2(curY-pivotY, curX-pivotX);
                 if(event.getAction()==MotionEvent.ACTION_DOWN){
                     state=REELING;
-                    prevAngle=curAngle;
+                    prevAngle=curAngle; prevX=curX; prevY=curY;
                 }
                 else if(event.getAction()==MotionEvent.ACTION_UP){
                     state=LOOSING;
                 }
 
-                reelW+=curAngle-prevAngle;
-                if(prevAngle>Math.PI*2/3 && curAngle < -Math.PI*2/3){
-                    reelW+=2*Math.PI;
+                int direction=-1;
+                if(curAngle>prevAngle || (curAngle<-Math.PI*2/3 && prevAngle>Math.PI*2/3)){
+                    direction=1;  //clockwise
                 }
-                if(prevAngle < -Math.PI*2/3 && curAngle > Math.PI*2/3){
-                    reelW-=2*Math.PI;
+
+                double curR = Math.sqrt((curX-pivotX)*(curX-pivotX)+(curY-pivotY)*(curY-pivotY));
+                if(curR>=pivotX*0.5 && curR <= pivotX*1.5){
+                    reelW += (Math.sqrt((prevX - curX) * (prevX - curX) + (prevY - curY) * (prevY - curY)) / pivotX)*direction;
                 }
-                prevAngle=curAngle;
+                prevAngle=curAngle; prevX=curX; prevY=curY;
                 return true;
             }
         });
