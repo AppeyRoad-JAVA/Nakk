@@ -69,7 +69,7 @@ class FishModel {
     }
 
     FishModel(Context context) {
-        InputStream inputStream = context.getResources().openRawResource(R.raw.goldfish);
+        InputStream inputStream = context.getResources().openRawResource(R.raw.fishingrod);
         try {
             InputStreamReader inputStreamReader = new InputStreamReader(inputStream, "utf-8");
             BufferedReader bufferedReader = new BufferedReader(inputStreamReader);
