@@ -19,7 +19,10 @@
 
 package com.appeyroad.nakk;
 
-import android.graphics.Color;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+
+/*import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
@@ -232,9 +235,9 @@ public class BattleActivity extends AppCompatActivity{
                 else if(state==LOOSING){
                     tension-=tension*ratio2 + 20*ratio2;
                     length-=(tension-strength)*ratio;
-                    /*if(strength>tension) {
+                    if(strength>tension) {
                         distance += (strength - tension)*(4.0)/BATTLE_FRAME;
-                    }*/
+                    }
                 }
                 distance-=(tension-strength)*ratio;
                 if(distance<length){
@@ -304,5 +307,16 @@ public class BattleActivity extends AppCompatActivity{
         });
         state=LOOSING;
         battle.cancel();
+    }
+}
+*/
+public class BattleActivity extends AppCompatActivity{
+    private RodView rodView;
+    @Override
+    protected void onCreate(Bundle savedInstanceState){
+        super.onCreate(savedInstanceState);
+
+        rodView = new RodView(this);
+        setContentView(rodView);
     }
 }
