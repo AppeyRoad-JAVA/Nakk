@@ -31,31 +31,39 @@ import java.nio.FloatBuffer;
 
 public class RodModel {
     private final String vertexShaderCode =
-            "attribute vec4 vPosition;"+
-                "attribute vec4 vColor;"+
-                "varying vec4 fColor;"+
-                "uniform mat4 uMVPMatrix;"+
-                "void main() {" +
-                "   gl_Position =  uMVPMatrix * vPosition;" +
-                "   fColor = vColor;"+
-                "}";
+            "attribute vec4 vPosition;" +
+                    "attribute vec2 aTexCoord;" +
+                    "varying vec2 vTexCoord;" +
+                    "uniform mat4 uMVPMatrix;" +
+                    "void main() {" +
+                    "   gl_Position =  uMVPMatrix * vPosition;" +
+                    "   vTexCoord=aTexCoord" +
+                    "}";
 
     private final String fragmentShaderCode =
             "precision mediump float;" +
-                    "varying vec4 fColor;" +
+                    "uniform sampler2D uTexture;" +
+                    "varying vec2 vTexCoord;" +
+                    "uniform vec4 vColor;" +
                     "void main() {" +
-                    "  gl_FragColor = fColor;" +
+                    "  gl_FragColor = vColor * texture2D(uTexture, vTexCoord);" +
                     "}";
     private FloatBuffer vertexBuffer;
-    private FloatBuffer colorBuffer;
+    private FloatBuffer texCoordsBuffer;
     private final int mProgram;
     private int mPositionHandle;
     private int mColorHandle;
     private int mMVPMatrixHandle;
+    private int mTextureHandle;
+    private int mTexCoordsHandle;
+    private int mTextureDataHandle;
 
-    private static final int COORDS_PER_VERTEX= 4;
+
+    private static final int COORDS_PER_VERTEX = 4;
+    private static final int TEXCOORDS_PER_VERTEX = 2;
     private static float coords[];
-    private static float colors[];
+    private static float colors[] = {0.5f, 0.5f, 0.5f, 1.0f};
+    private static float texCoords[];
 
     public RodModel(Context context) {
         InputStream inputStream = context.getResources().openRawResource(R.raw.rod);
@@ -63,27 +71,29 @@ public class RodModel {
             InputStreamReader inputstreamReader = new InputStreamReader(inputStream, "utf-8");
             BufferedReader bufferedReader = new BufferedReader(inputstreamReader);
             String str = bufferedReader.readLine();
-            int length = Integer.parseInt(str)*COORDS_PER_VERTEX;
-            coords = new float[length];
-            colors = new float[length];
-            for(int i=0; i<length; i+=COORDS_PER_VERTEX){
+            int nVertices = Integer.parseInt(str);
+            coords = new float[nVertices * COORDS_PER_VERTEX];
+            texCoords = new float[nVertices * TEXCOORDS_PER_VERTEX];
+            for (int i = 0; i < nVertices; i++) {
                 str = bufferedReader.readLine();
                 String[] words = str.split(" ");
-                for(int j=0; j<COORDS_PER_VERTEX; j++){
-                    if(j==COORDS_PER_VERTEX-1) {
-                        coords[i+j]=1.0f;
-                        colors[i+j]=0.0f;
+                for (int j = 0; j < COORDS_PER_VERTEX; j++) {
+                    if (j == COORDS_PER_VERTEX - 1) {
+                        coords[i*COORDS_PER_VERTEX + j] = 1.0f;
+                    } else {
+                        coords[i*COORDS_PER_VERTEX + j] = Float.parseFloat(words[j]);
                     }
-                    else {
-                        coords[i + j] = Float.parseFloat(words[j]);
-                        colors[i + j] = Float.parseFloat(words[j + 3]) / 256.0f;
-                    }
+                }
+                for(int j=0; j<TEXCOORDS_PER_VERTEX; j++){
+                    texCoords[i*TEXCOORDS_PER_VERTEX + j] =
+                            Float.parseFloat(words[j+COORDS_PER_VERTEX-1]);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(coords.length*4);
+
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(coords.length * 4);
         byteBuffer.order(ByteOrder.nativeOrder());
         vertexBuffer = byteBuffer.asFloatBuffer();
         vertexBuffer.put(coords);
@@ -91,10 +101,11 @@ public class RodModel {
 
         ByteBuffer byteBuffer2 = ByteBuffer.allocateDirect(coords.length * 4);
         byteBuffer2.order(ByteOrder.nativeOrder());
-        colorBuffer= byteBuffer.asFloatBuffer();
-        colorBuffer.put(colors);
-        colorBuffer.position(0);
+        texCoordsBuffer = byteBuffer.asFloatBuffer();
+        texCoordsBuffer.put(texCoords);
+        texCoordsBuffer.position(0);
 
+        mTextureDataHandle = RodRenderer.loadTexture(context, R.drawable.rod);
         int vertexShader = RodRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = RodRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         mProgram = GLES20.glCreateProgram();
@@ -111,19 +122,27 @@ public class RodModel {
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
                 false, COORDS_PER_VERTEX * 4, vertexBuffer);
 
-        mColorHandle = GLES20.glGetAttribLocation(mProgram, "vColor");
-        GLES20.glEnableVertexAttribArray(mColorHandle);
-        GLES20.glVertexAttribPointer(mColorHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
-                false, COORDS_PER_VERTEX * 4, colorBuffer);
+        mColorHandle = GLES20.glGetUniformLocation(mProgram, "vColor");
+        GLES20.glUniform4fv(mColorHandle, 1, colors, 0);
+
+        mTextureHandle = GLES20.glGetUniformLocation(mProgram, "uTexture");
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
+        GLES20.glUniform1i(mTextureHandle, 0);
+
+        mTexCoordsHandle = GLES20.glGetAttribLocation(mProgram, "aTexCoords");
+        GLES20.glVertexAttribPointer(mTexCoordsHandle, TEXCOORDS_PER_VERTEX, GLES20.GL_FLOAT,
+                false, TEXCOORDS_PER_VERTEX*4, texCoordsBuffer);
+        GLES20.glEnableVertexAttribArray(mTexCoordsHandle);
 
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
         RodRenderer.checkGlError("glGetUniformLocation");
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
         RodRenderer.checkGlError("glUniformMatrix4fv");
 
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.length/COORDS_PER_VERTEX);
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.length / COORDS_PER_VERTEX);
 
         GLES20.glDisableVertexAttribArray(mPositionHandle);
-        GLES20.glDisableVertexAttribArray(mColorHandle);
+        GLES20.glDisableVertexAttribArray(mTexCoordsHandle);
     }
 }

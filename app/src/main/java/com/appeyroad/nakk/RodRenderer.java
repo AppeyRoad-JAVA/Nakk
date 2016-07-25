@@ -19,13 +19,16 @@
 package com.appeyroad.nakk;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
+import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.util.Log;
 
-import javax.microedition.khronos.opengles.GL10;
 import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
 
 public class RodRenderer implements GLSurfaceView.Renderer {
     private Context context;
@@ -42,12 +45,13 @@ public class RodRenderer implements GLSurfaceView.Renderer {
     @Override
         public void onSurfaceCreated(GL10 unused, EGLConfig config) {
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         rodModel = new RodModel(context);
     }
     @Override
     public void onDrawFrame(GL10 unused) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        Matrix.setLookAtM(mVMatrix, 0, 0, 12, 0, 0f, 0f, 0f, 0f, 1.0f, 1.0f);
+        Matrix.setLookAtM(mVMatrix, 0, 0, 12, 0, 0, 0, 0, 0, 0, 1);
         Matrix.multiplyMM(mMVPMatrix, 0, mPMatrix, 0, mVMatrix, 0);
         rodModel.draw(mMVPMatrix);
     }
@@ -63,6 +67,27 @@ public class RodRenderer implements GLSurfaceView.Renderer {
         GLES20.glShaderSource(shader, shaderCode);
         GLES20.glCompileShader(shader);
         return shader;
+    }
+    public static int loadTexture(Context context, int resourceId){
+        int[] textureHandle = new int[1];
+        GLES20.glGenTextures(1, textureHandle, 0);
+        if(textureHandle[0]!=0){
+            final BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inScaled=false;
+            final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId,
+                    options);
+            GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
+                    GLES20.GL_NEAREST);
+            GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER,
+                    GLES20.GL_NEAREST);
+            GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bitmap, 0);
+            bitmap.recycle();
+        }
+        if(textureHandle[0]==0){
+            throw new RuntimeException("Error loading texture.");
+        }
+        return textureHandle[0];
     }
     public static void checkGlError(String glOperation) {
         int error;
