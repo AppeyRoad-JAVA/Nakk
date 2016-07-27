@@ -311,12 +311,11 @@ public class BattleActivity extends AppCompatActivity{
 }
 */
 public class BattleActivity extends AppCompatActivity{
-    private RodView rodView;
+    private BattleView battleView;
     @Override
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
-
-        rodView = new RodView(this);
-        setContentView(rodView);
+        battleView = new BattleView(this);
+        setContentView(battleView);
     }
 }

@@ -29,7 +29,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 
-public class RodModel {
+public class Model {
     private final String vertexShaderCode =
             "attribute vec4 vPosition;" +
                     "attribute vec2 aTexCoord;" +
@@ -47,6 +47,8 @@ public class RodModel {
                     "void main() {" +
                     "  gl_FragColor = texture2D(uTexture, vTexCoord);" +
                     "}";
+    private Context context;
+
     private FloatBuffer vertexBuffer;
     private FloatBuffer texCoordsBuffer;
     private final int mProgram;
@@ -59,11 +61,12 @@ public class RodModel {
 
     private static final int COORDS_PER_VERTEX = 4;
     private static final int TEXCOORDS_PER_VERTEX = 2;
-    private static float coords[];
-    private static float texCoords[];
+    private float coords[];
+    private float texCoords[];
 
-    public RodModel(Context context) {
-        InputStream inputStream = context.getResources().openRawResource(R.raw.rod);
+    public Model(Context context, int vertResourceId, int texResourceId) {
+        this.context=context;
+        InputStream inputStream = context.getResources().openRawResource(vertResourceId);
         try {
             InputStreamReader inputstreamReader = new InputStreamReader(inputStream, "utf-8");
             BufferedReader bufferedReader = new BufferedReader(inputstreamReader);
@@ -76,9 +79,9 @@ public class RodModel {
                 String[] words = str.split(" ");
                 for (int j = 0; j < COORDS_PER_VERTEX; j++) {
                     if (j == COORDS_PER_VERTEX - 1) {
-                        coords[i*COORDS_PER_VERTEX + j] = 1.0f;
+                        coords[i * COORDS_PER_VERTEX + j] = 1.0f;
                     } else {
-                        coords[i*COORDS_PER_VERTEX + j] = Float.parseFloat(words[j]);
+                        coords[i * COORDS_PER_VERTEX + j] = Float.parseFloat(words[j]);
                     }
                 }
                 for(int j=0; j<TEXCOORDS_PER_VERTEX; j++){
@@ -98,13 +101,13 @@ public class RodModel {
 
         ByteBuffer byteBuffer2 = ByteBuffer.allocateDirect(texCoords.length * 4);
         byteBuffer2.order(ByteOrder.nativeOrder());
-        texCoordsBuffer = byteBuffer.asFloatBuffer();
+        texCoordsBuffer = byteBuffer2.asFloatBuffer();
         texCoordsBuffer.put(texCoords);
         texCoordsBuffer.position(0);
 
-        mTextureDataHandle = RodRenderer.loadTexture(context, R.drawable.rod);
-        int vertexShader = RodRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
-        int fragmentShader = RodRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
+        mTextureDataHandle = BattleRenderer.loadTexture(context, texResourceId);
+        int vertexShader = BattleRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
+        int fragmentShader = BattleRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         mProgram = GLES20.glCreateProgram();
         GLES20.glAttachShader(mProgram, vertexShader);
         GLES20.glAttachShader(mProgram, fragmentShader);
@@ -130,12 +133,28 @@ public class RodModel {
                 false, TEXCOORDS_PER_VERTEX*4, texCoordsBuffer);
 
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
-        RodRenderer.checkGlError("glGetUniformLocation");
+        BattleRenderer.checkGlError("glGetUniformLocation");
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
-        RodRenderer.checkGlError("glUniformMatrix4fv");
+        BattleRenderer.checkGlError("glUniformMatrix4fv");
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.length / COORDS_PER_VERTEX);
         GLES20.glDisableVertexAttribArray(mPositionHandle);
         GLES20.glDisableVertexAttribArray(mTexCoordsHandle);
+    }
+}
+
+class RodModel extends Model{
+    public RodModel(Context context){
+        super(context, R.raw.rod, R.drawable.rod);
+    }
+}
+class WaterModel extends Model{
+    public WaterModel(Context context){
+        super(context, R.raw.water, R.drawable.water);
+    }
+}
+class LandModel extends Model{
+    public LandModel(Context context){
+        super(context, R.raw.land, R.drawable.land);
     }
 }
