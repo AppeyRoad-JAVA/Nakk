@@ -20,14 +20,17 @@ package com.appeyroad.nakk;
 
 import android.content.Context;
 import android.opengl.GLSurfaceView;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 
 public class BattleView extends GLSurfaceView{
     public final BattleRenderer rodRenderer;
     float mPreviousX;
     float mPreviousY;
-    public BattleView(Context context){
-        super(context);
+    private Context context;
+    public boolean onBattle;
+    public BattleView(Context context, AttributeSet attrs){
+        super(context, attrs);
         setEGLContextClientVersion(2);
         rodRenderer = new BattleRenderer(context);
         setRenderer(rodRenderer);
