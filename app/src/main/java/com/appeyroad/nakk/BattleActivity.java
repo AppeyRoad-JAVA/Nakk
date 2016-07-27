@@ -79,12 +79,19 @@ public class BattleActivity extends AppCompatActivity {
         onBattle = false;
 
         battleView.setOnTouchListener(new View.OnTouchListener() {
+            float prevX;
+            float prevY;
+            float curX;
+            float curY;
             @Override
             public boolean onTouch(View view, MotionEvent event) {
+
+                curX=event.getX();  curY=event.getY();
                 if (onBattle)
                     return true;
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
+
                     Timer timer = new Timer();
                     if (stuck != null) {
                         stuck.cancel();
@@ -100,7 +107,14 @@ public class BattleActivity extends AppCompatActivity {
                     };
                     textView.setText("");
                     timer.scheduleAtFixedRate(stuck, 0, 100);
+                }else if(event.getAction()==MotionEvent.ACTION_MOVE) {
+                    float dx = curX - prevX;
+                    float dy = curY - prevY;
+                    battleView.rodRenderer.setAngle(battleView.rodRenderer.getAngle() + dx);
+                    battleView.requestRender();
                 }
+                prevX = curX;
+                prevY = curY;
                 return true;
             }
         });

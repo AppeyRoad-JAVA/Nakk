@@ -21,34 +21,16 @@ package com.appeyroad.nakk;
 import android.content.Context;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 
 public class BattleView extends GLSurfaceView{
     public final BattleRenderer rodRenderer;
-    float mPreviousX;
-    float mPreviousY;
     private Context context;
-    public boolean onBattle;
     public BattleView(Context context, AttributeSet attrs){
         super(context, attrs);
+        this.context=context;
         setEGLContextClientVersion(2);
         rodRenderer = new BattleRenderer(context);
         setRenderer(rodRenderer);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-    }
-    @Override
-    public boolean onTouchEvent(MotionEvent e){
-        float x = e.getX();
-        float y = e.getY();
-        if(e.getAction()==MotionEvent.ACTION_MOVE) {
-            float dx = x - mPreviousX;
-            float dy = y - mPreviousY;
-            rodRenderer.setAngle(rodRenderer.getAngle() + dx);
-            requestRender();
-        }
-
-        mPreviousX = x;
-        mPreviousY = y;
-        return true;
     }
 }

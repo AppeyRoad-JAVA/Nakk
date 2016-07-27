@@ -88,6 +88,8 @@ public class Model {
                     texCoords[i*TEXCOORDS_PER_VERTEX + j] =
                             Float.parseFloat(words[j+COORDS_PER_VERTEX-1]);
                 }
+                //texCoords[i*TEXCOORDS_PER_VERTEX] = Float.parseFloat(words[COORDS_PER_VERTEX-1]);
+                //texCoords[i*TEXCOORDS_PER_VERTEX+1] =1.0f- Float.parseFloat(words[COORDS_PER_VERTEX]);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -145,12 +147,12 @@ public class Model {
 
 class RodModel extends Model{
     public RodModel(Context context){
-        super(context, R.raw.rod, R.drawable.rod);
+        super(context, R.raw.rod2, R.drawable.rod2);
     }
 }
 class WaterModel extends Model{
     public WaterModel(Context context){
-        super(context, R.raw.water, R.drawable.water);
+        super(context, R.raw.water, R.drawable.water_deep);
     }
 }
 class LandModel extends Model{

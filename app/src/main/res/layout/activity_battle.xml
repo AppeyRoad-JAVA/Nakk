@@ -15,7 +15,7 @@
         android:id="@+id/progressBar_battle_tension"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:progressTint="@android:color/holo_blue_light"
+        android:progressTint="#ff99cc00"
         android:max="100"
         android:progress="50"
         android:layout_alignParentRight="true"
