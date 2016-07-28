@@ -63,8 +63,8 @@ public class Model {
                     "   vec3 n_viewer = normalize(vec3(uEyePos-vPosition));"+
                     "   vec3 n_halfway = normalize(n_uLight + n_viewer);"+
 
-                    "   vec4 diffColor = max(dot(n_uLight, n_vNorCoord), 0) * texture2D(uDiff, vTexCoord);"+
-                    "   vec4 specColor = pow(max(dot(n_halfway, n_vNorCoord), 0), 20) * texture2D(uSpec, vTexCoord);"+
+                    "   vec4 diffColor = max(dot(n_uLight, n_vNorCoord), 0.0) * texture2D(uDiff, vTexCoord);"+
+                    "   vec4 specColor = pow(max(dot(n_halfway, n_vNorCoord), 0.0), 20.0) * texture2D(uSpec, vTexCoord);"+
                     "   gl_FragColor = diffColor+specColor;"+
                     "}";
     private Context context;
