@@ -66,6 +66,7 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         //Matrix.setLookAtM(mVMatrix, 0, -200, 190, 0, -190, 180, 0, -180, 190, 0); //옆에서 바라보는 시점
         Matrix.setLookAtM(mVMatrix, 0, 0, 190, 20, 0, 180, 0, 0, 200, -10);
+        Model.eyePos[0]=0;  Model.eyePos[1]=190; Model.eyePos[2]=20; Model.eyePos[3]=1;
         Matrix.multiplyMM(mVPMatrix, 0, mPMatrix, 0, mVMatrix, 0);
         Matrix.setRotateM(mMMatrix, 0, mAngle, 0, 1, 0);
         Matrix.multiplyMM(mMVPMatrix, 0, mVPMatrix, 0, mMMatrix, 0);
@@ -94,7 +95,6 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
             options.inScaled=false;
             final Bitmap bitmap = BitmapFactory.decodeResource(context.getResources(), resourceId,
                     options);
-            GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
             GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureHandle[0]);
             GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER,
                     GLES20.GL_NEAREST);

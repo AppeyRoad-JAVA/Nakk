@@ -39,23 +39,33 @@ public class Model {
 
                     "varying vec2 vTexCoord;"+
                     "varying vec3 vNorCoord;"+
+                    "varying vec4 vPosition;"+
                     "void main() {" +
                     "   gl_Position =  uMVPMatrix * aPosition;"+
                     "   vTexCoord = aTexCoord;"+
                     "   vNorCoord = aNorCoord;"+
+                    "   vPosition = aPosition;"+
                     "}";
 
     private final String fragmentShaderCode =
             "precision mediump float;" +
-                    "uniform sampler2D uTexture;"+
+                    "uniform sampler2D uDiff;"+
+                    "uniform sampler2D uSpec;"+
                     "uniform vec3 uLight;"+
+                    "uniform vec4 uEyePos;"+
 
                     "varying vec2 vTexCoord;"+
                     "varying vec3 vNorCoord;"+
+                    "varying vec4 vPosition;"+
                     "void main() {" +
                     "   vec3 n_uLight = normalize(uLight);"+
                     "   vec3 n_vNorCoord = normalize(vNorCoord);"+
-                    "   gl_FragColor = dot(n_uLight, n_vNorCoord) * texture2D(uTexture, vTexCoord);"+
+                    "   vec3 n_viewer = normalize(vec3(uEyePos-vPosition));"+
+                    "   vec3 n_halfway = normalize(n_uLight + n_viewer);"+
+
+                    "   vec4 diffColor = max(dot(n_uLight, n_vNorCoord), 0) * texture2D(uDiff, vTexCoord);"+
+                    "   vec4 specColor = pow(max(dot(n_halfway, n_vNorCoord), 0), 20) * texture2D(uSpec, vTexCoord);"+
+                    "   gl_FragColor = diffColor+specColor;"+
                     "}";
     private Context context;
 
@@ -66,9 +76,12 @@ public class Model {
     private int mPositionHandle;
     private int mUvHandle;
     private int mNorCoordsHandle;
-    private int mDiffMapHandle;     //diffuse map
+    private int mDiffMapHandle;
     private int mDiffMapDataHandle;
+    private int mSpecMapHandle;
+    private int mSpecMapDataHandle;
     private int mLightHandle;
+    private int mEyePosHandle;
     private int mMVPMatrixHandle;
     private final int mProgram;
 
@@ -80,8 +93,9 @@ public class Model {
     private float uv[];
     private float norCoords[];
     private float light[] = {1, 1, 1};  //햇빛이므로 모든 점으로 일정한 방향으로 일정한 세기로 내리쬔다고 가정
+    public static float eyePos[] = new float[4];
 
-    public Model(Context context, int vertResourceId, int diffMapResourceId) {
+    public Model(Context context, int vertResourceId, int diffMapResourceId, int specMapResourceId) {
         this.context=context;
         InputStream inputStream = context.getResources().openRawResource(vertResourceId);
         try {
@@ -138,6 +152,8 @@ public class Model {
         norCoordsBuffer.position(0);
 
         mDiffMapDataHandle = BattleRenderer.loadTexture(context, diffMapResourceId);
+        mSpecMapDataHandle = BattleRenderer.loadTexture(context, specMapResourceId);
+
         int vertexShader = BattleRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = BattleRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         mProgram = GLES20.glCreateProgram();
@@ -154,10 +170,15 @@ public class Model {
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
                 false, COORDS_PER_VERTEX * 4, vertexBuffer);
 
-        mDiffMapHandle = GLES20.glGetUniformLocation(mProgram, "uTexture");
+        mDiffMapHandle = GLES20.glGetUniformLocation(mProgram, "uDiff");
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mDiffMapDataHandle);
         GLES20.glUniform1i(mDiffMapHandle, 0);
+
+        mSpecMapHandle = GLES20.glGetUniformLocation(mProgram, "uSpec");
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mSpecMapDataHandle);
+        GLES20.glUniform1i(mSpecMapHandle, 1);
 
         mUvHandle = GLES20.glGetAttribLocation(mProgram, "aTexCoord");
         GLES20.glEnableVertexAttribArray(mUvHandle);
@@ -176,6 +197,8 @@ public class Model {
 
         mLightHandle = GLES20.glGetUniformLocation(mProgram, "uLight");
         GLES20.glUniform3fv(mLightHandle, 1, light, 0);
+        mEyePosHandle = GLES20.glGetUniformLocation(mProgram, "uEyePos");
+        GLES20.glUniform4fv(mEyePosHandle, 1, eyePos, 0);
 
 
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.length / COORDS_PER_VERTEX);
@@ -187,16 +210,16 @@ public class Model {
 
 class RodModel extends Model{
     public RodModel(Context context){
-        super(context, R.raw.rod2, R.drawable.rod2);
+        super(context, R.raw.rod2, R.drawable.rod2_diff, R.drawable.rod2_specular);
     }
 }
 class WaterModel extends Model{
     public WaterModel(Context context){
-        super(context, R.raw.water, R.drawable.water_deep);
+        super(context, R.raw.water, R.drawable.water_deep, R.drawable.black);
     }
 }
 class LandModel extends Model{
     public LandModel(Context context){
-        super(context, R.raw.land, R.drawable.land);
+        super(context, R.raw.land, R.drawable.land, R.drawable.black);
     }
 }
