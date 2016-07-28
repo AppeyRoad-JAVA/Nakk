@@ -31,40 +31,57 @@ import java.nio.FloatBuffer;
 
 public class Model {
     private final String vertexShaderCode =
-            "attribute vec4 vPosition;" +
-                    "attribute vec2 aTexCoord;" +
-                    "varying vec2 vTexCoord;" +
-                    "uniform mat4 uMVPMatrix;" +
+            "attribute vec4 aPosition;" +
+                    "attribute vec2 aTexCoord;"+
+                    "attribute vec3 aNorCoord;"+
+
+                    "uniform mat4 uMVPMatrix;"+
+
+                    "varying vec2 vTexCoord;"+
+                    "varying vec3 vNorCoord;"+
                     "void main() {" +
-                    "   gl_Position =  uMVPMatrix * vPosition;" +
-                    "   vTexCoord=aTexCoord;" +
+                    "   gl_Position =  uMVPMatrix * aPosition;"+
+                    "   vTexCoord = aTexCoord;"+
+                    "   vNorCoord = aNorCoord;"+
                     "}";
 
     private final String fragmentShaderCode =
             "precision mediump float;" +
-                    "uniform sampler2D uTexture;" +
-                    "varying vec2 vTexCoord;" +
+                    "uniform sampler2D uTexture;"+
+                    "uniform vec3 uLight;"+
+
+                    "varying vec2 vTexCoord;"+
+                    "varying vec3 vNorCoord;"+
                     "void main() {" +
-                    "  gl_FragColor = texture2D(uTexture, vTexCoord);" +
+                    "   vec3 n_uLight = normalize(uLight);"+
+                    "   vec3 n_vNorCoord = normalize(vNorCoord);"+
+                    "   gl_FragColor = dot(n_uLight, n_vNorCoord) * texture2D(uTexture, vTexCoord);"+
                     "}";
     private Context context;
 
     private FloatBuffer vertexBuffer;
-    private FloatBuffer texCoordsBuffer;
-    private final int mProgram;
+    private FloatBuffer uvBuffer;
+    private FloatBuffer norCoordsBuffer;
+
     private int mPositionHandle;
+    private int mUvHandle;
+    private int mNorCoordsHandle;
+    private int mDiffMapHandle;     //diffuse map
+    private int mDiffMapDataHandle;
+    private int mLightHandle;
     private int mMVPMatrixHandle;
-    private int mTextureHandle;
-    private int mTexCoordsHandle;
-    private int mTextureDataHandle;
+    private final int mProgram;
 
 
     private static final int COORDS_PER_VERTEX = 4;
     private static final int TEXCOORDS_PER_VERTEX = 2;
+    private static final int NORCOORDS_PER_VERTEX = 3;
     private float coords[];
-    private float texCoords[];
+    private float uv[];
+    private float norCoords[];
+    private float light[] = {1, 1, 1};  //햇빛이므로 모든 점으로 일정한 방향으로 일정한 세기로 내리쬔다고 가정
 
-    public Model(Context context, int vertResourceId, int texResourceId) {
+    public Model(Context context, int vertResourceId, int diffMapResourceId) {
         this.context=context;
         InputStream inputStream = context.getResources().openRawResource(vertResourceId);
         try {
@@ -73,7 +90,8 @@ public class Model {
             String str = bufferedReader.readLine();
             int nVertices = Integer.parseInt(str);
             coords = new float[nVertices * COORDS_PER_VERTEX];
-            texCoords = new float[nVertices * TEXCOORDS_PER_VERTEX];
+            uv = new float[nVertices * TEXCOORDS_PER_VERTEX];
+            norCoords = new float[nVertices * NORCOORDS_PER_VERTEX];
             for (int i = 0; i < nVertices; i++) {
                 str = bufferedReader.readLine();
                 String[] words = str.split(" ");
@@ -84,12 +102,18 @@ public class Model {
                         coords[i * COORDS_PER_VERTEX + j] = Float.parseFloat(words[j]);
                     }
                 }
-                for(int j=0; j<TEXCOORDS_PER_VERTEX; j++){
-                    texCoords[i*TEXCOORDS_PER_VERTEX + j] =
-                            Float.parseFloat(words[j+COORDS_PER_VERTEX-1]);
+                if(words.length >= COORDS_PER_VERTEX + TEXCOORDS_PER_VERTEX) {
+                    for (int j = 0; j < TEXCOORDS_PER_VERTEX; j++) {
+                       uv[i * TEXCOORDS_PER_VERTEX + j] =
+                                Float.parseFloat(words[j + COORDS_PER_VERTEX - 1]);
+                    }
                 }
-                //texCoords[i*TEXCOORDS_PER_VERTEX] = Float.parseFloat(words[COORDS_PER_VERTEX-1]);
-                //texCoords[i*TEXCOORDS_PER_VERTEX+1] =1.0f- Float.parseFloat(words[COORDS_PER_VERTEX]);
+                if(words.length >= COORDS_PER_VERTEX + TEXCOORDS_PER_VERTEX + NORCOORDS_PER_VERTEX) {
+                    for (int j = 0; j < NORCOORDS_PER_VERTEX; j++) {
+                        norCoords[i * NORCOORDS_PER_VERTEX + j] =
+                                Float.parseFloat(words[j + COORDS_PER_VERTEX + TEXCOORDS_PER_VERTEX]);
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -101,13 +125,19 @@ public class Model {
         vertexBuffer.put(coords);
         vertexBuffer.position(0);
 
-        ByteBuffer byteBuffer2 = ByteBuffer.allocateDirect(texCoords.length * 4);
+        ByteBuffer byteBuffer2 = ByteBuffer.allocateDirect(uv.length * 4);
         byteBuffer2.order(ByteOrder.nativeOrder());
-        texCoordsBuffer = byteBuffer2.asFloatBuffer();
-        texCoordsBuffer.put(texCoords);
-        texCoordsBuffer.position(0);
+        uvBuffer = byteBuffer2.asFloatBuffer();
+        uvBuffer.put(uv);
+        uvBuffer.position(0);
 
-        mTextureDataHandle = BattleRenderer.loadTexture(context, texResourceId);
+        ByteBuffer byteBuffer3 = ByteBuffer.allocateDirect(norCoords.length * 4);
+        byteBuffer3.order(ByteOrder.nativeOrder());
+        norCoordsBuffer = byteBuffer3.asFloatBuffer();
+        norCoordsBuffer.put(norCoords);
+        norCoordsBuffer.position(0);
+
+        mDiffMapDataHandle = BattleRenderer.loadTexture(context, diffMapResourceId);
         int vertexShader = BattleRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = BattleRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         mProgram = GLES20.glCreateProgram();
@@ -119,29 +149,39 @@ public class Model {
     public void draw(float[] mvpMatrix) {
         GLES20.glUseProgram(mProgram);
 
-        mPositionHandle = GLES20.glGetAttribLocation(mProgram, "vPosition");
+        mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
                 false, COORDS_PER_VERTEX * 4, vertexBuffer);
 
-        mTextureHandle = GLES20.glGetUniformLocation(mProgram, "uTexture");
+        mDiffMapHandle = GLES20.glGetUniformLocation(mProgram, "uTexture");
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mTextureDataHandle);
-        GLES20.glUniform1i(mTextureHandle, 0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mDiffMapDataHandle);
+        GLES20.glUniform1i(mDiffMapHandle, 0);
 
-        mTexCoordsHandle = GLES20.glGetAttribLocation(mProgram, "aTexCoord");
-        GLES20.glEnableVertexAttribArray(mTexCoordsHandle);
-        GLES20.glVertexAttribPointer(mTexCoordsHandle, TEXCOORDS_PER_VERTEX, GLES20.GL_FLOAT,
-                false, TEXCOORDS_PER_VERTEX*4, texCoordsBuffer);
+        mUvHandle = GLES20.glGetAttribLocation(mProgram, "aTexCoord");
+        GLES20.glEnableVertexAttribArray(mUvHandle);
+        GLES20.glVertexAttribPointer(mUvHandle, TEXCOORDS_PER_VERTEX, GLES20.GL_FLOAT,
+                false, TEXCOORDS_PER_VERTEX*4, uvBuffer);
+
+        mNorCoordsHandle = GLES20.glGetAttribLocation(mProgram, "aNorCoord");
+        GLES20.glEnableVertexAttribArray(mNorCoordsHandle);
+        GLES20.glVertexAttribPointer(mNorCoordsHandle, NORCOORDS_PER_VERTEX, GLES20.GL_FLOAT,
+                false, NORCOORDS_PER_VERTEX*4, norCoordsBuffer);
 
         mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
         BattleRenderer.checkGlError("glGetUniformLocation");
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
         BattleRenderer.checkGlError("glUniformMatrix4fv");
 
+        mLightHandle = GLES20.glGetUniformLocation(mProgram, "uLight");
+        GLES20.glUniform3fv(mLightHandle, 1, light, 0);
+
+
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.length / COORDS_PER_VERTEX);
         GLES20.glDisableVertexAttribArray(mPositionHandle);
-        GLES20.glDisableVertexAttribArray(mTexCoordsHandle);
+        GLES20.glDisableVertexAttribArray(mUvHandle);
+        GLES20.glDisableVertexAttribArray(mNorCoordsHandle);
     }
 }
 
