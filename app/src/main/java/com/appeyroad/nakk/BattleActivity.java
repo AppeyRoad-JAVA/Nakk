@@ -108,8 +108,8 @@ public class BattleActivity extends AppCompatActivity {
                     textView.setText("");
                     timer.scheduleAtFixedRate(stuck, 0, 100);
                 }else if(event.getAction()==MotionEvent.ACTION_MOVE) {
-                    float dx = curX - prevX;
-                    float dy = curY - prevY;
+                    float dx = (curX - prevX) / battleView.getWidth() * 180.0f;
+                    float dy = (curY - prevY) / battleView.getHeight() * 180.0f;
                     battleView.rodRenderer.setAngle(battleView.rodRenderer.getAngle() + dx);
                     battleView.requestRender();
                 }
