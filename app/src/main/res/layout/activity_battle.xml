@@ -1,87 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  ~ Copyright (c) 2016  AppeyRoad-JAVA team
-  ~
-  ~ This file is part of Nakk.
-  ~
-  ~ Nakk is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU General Public License as published by
-  ~ the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ Nakk is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU General Public License
-  ~ along with Nakk.  If not, see <http://www.gnu.org/licenses/>.
-  -->
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/background_floating_material_light"
     android:id="@+id/layout_battle">
 
-    <ImageView
+    <com.appeyroad.nakk.BattleView android:id="@+id/surfaceview_Battle"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/imageView_battle_background"
-        android:src="@drawable/background_battle" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView_battle_user"
-        android:src="@drawable/user_fishing"
-        android:layout_marginRight="130dp"
-        android:layout_marginBottom="115dp"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView_battle_rod"
-        android:src="@drawable/rod_normal"
-        android:layout_alignTop="@+id/imageView_battle_user"
-        android:layout_toLeftOf="@+id/imageView_battle_user"
-        android:layout_toStartOf="@+id/imageView_battle_user"
-        android:layout_marginTop="-65dp"
-        android:layout_marginRight="-15dp"/>
+        android:layout_height="match_parent"/>
 
     <ProgressBar
         style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/progressBar_battle_gauge"
+        android:id="@+id/progressBar_battle_tension"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:progressTint="#ff99cc00"
         android:max="100"
-        android:progress="10"
-        android:layout_marginLeft="75dp"
-        android:layout_marginTop="75dp"
-        android:layout_alignParentTop="true"
-        android:layout_toLeftOf="@+id/imageView_battle_rod"
-        android:layout_toStartOf="@+id/imageView_battle_rod"
-        android:progressBackgroundTint="@android:color/holo_blue_bright"
-        android:progressTint="@android:color/holo_red_light" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="전투시작"
-        android:id="@+id/button_battle_begin"
-        android:layout_alignTop="@+id/imageView_battle_user"
-        android:layout_alignLeft="@+id/progressBar_battle_gauge"
-        android:layout_alignStart="@+id/progressBar_battle_gauge" />
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="나가기"
-        android:id="@+id/button_battle_back"
-        android:layout_alignParentTop="true"
+        android:progress="50"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft = "50dp"
+        android:layout_marginRight = "50dp"
+        android:layout_marginTop = "15dp"/>
 
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imageView_battle_reel"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:src="@drawable/battle_reel"
+        android:alpha="0.6" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:id="@+id/textView_battle_debug"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:textSize="15dp"
+        android:textIsSelectable="false" />
 </RelativeLayout>
