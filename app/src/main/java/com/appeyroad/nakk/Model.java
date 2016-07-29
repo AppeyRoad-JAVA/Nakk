@@ -72,16 +72,8 @@ public class Model {
     private FloatBuffer uvBuffer;
     private FloatBuffer norCoordsBuffer;
 
-    private int mPositionHandle;
-    private int mUvHandle;
-    private int mNorCoordsHandle;
-    private int mDiffMapHandle;
     private int mDiffMapDataHandle;
-    private int mSpecMapHandle;
     private int mSpecMapDataHandle;
-    private int mLightHandle;
-    private int mEyePosHandle;
-    private int mMVPMatrixHandle;
     private final int mProgram;
 
 
@@ -163,39 +155,39 @@ public class Model {
     public void draw(float[] mvpMatrix) {
         GLES20.glUseProgram(mProgram);
 
-        mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
+        int mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         GLES20.glEnableVertexAttribArray(mPositionHandle);
         GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
                 false, COORDS_PER_VERTEX * 4, vertexBuffer);
 
-        mDiffMapHandle = GLES20.glGetUniformLocation(mProgram, "uDiff");
+        int mDiffMapHandle = GLES20.glGetUniformLocation(mProgram, "uDiff");
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mDiffMapDataHandle);
         GLES20.glUniform1i(mDiffMapHandle, 0);
 
-        mSpecMapHandle = GLES20.glGetUniformLocation(mProgram, "uSpec");
+        int mSpecMapHandle = GLES20.glGetUniformLocation(mProgram, "uSpec");
         GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mSpecMapDataHandle);
         GLES20.glUniform1i(mSpecMapHandle, 1);
 
-        mUvHandle = GLES20.glGetAttribLocation(mProgram, "aTexCoord");
+        int mUvHandle = GLES20.glGetAttribLocation(mProgram, "aTexCoord");
         GLES20.glEnableVertexAttribArray(mUvHandle);
         GLES20.glVertexAttribPointer(mUvHandle, TEXCOORDS_PER_VERTEX, GLES20.GL_FLOAT,
                 false, TEXCOORDS_PER_VERTEX*4, uvBuffer);
 
-        mNorCoordsHandle = GLES20.glGetAttribLocation(mProgram, "aNorCoord");
+        int mNorCoordsHandle = GLES20.glGetAttribLocation(mProgram, "aNorCoord");
         GLES20.glEnableVertexAttribArray(mNorCoordsHandle);
         GLES20.glVertexAttribPointer(mNorCoordsHandle, NORCOORDS_PER_VERTEX, GLES20.GL_FLOAT,
                 false, NORCOORDS_PER_VERTEX*4, norCoordsBuffer);
 
-        mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+        int mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
         BattleRenderer.checkGlError("glGetUniformLocation");
         GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
         BattleRenderer.checkGlError("glUniformMatrix4fv");
 
-        mLightHandle = GLES20.glGetUniformLocation(mProgram, "uLight");
+        int mLightHandle = GLES20.glGetUniformLocation(mProgram, "uLight");
         GLES20.glUniform3fv(mLightHandle, 1, light, 0);
-        mEyePosHandle = GLES20.glGetUniformLocation(mProgram, "uEyePos");
+        int mEyePosHandle = GLES20.glGetUniformLocation(mProgram, "uEyePos");
         GLES20.glUniform4fv(mEyePosHandle, 1, eyePos, 0);
 
 
