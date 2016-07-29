@@ -110,8 +110,8 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
     }
     public static void checkGlError(String glOperation) {
         int error;
-        if ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
-            Log.e("RodRenderer", glOperation + ": glError " + error);
+        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+            Log.e("BattleRenderer", glOperation + ": glError " + error);
             throw new RuntimeException(glOperation + ": glError " + error);
         }
     }
