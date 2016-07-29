@@ -22,6 +22,4 @@ package com.appeyroad.nakk.items;
 import com.appeyroad.nakk.item;
 
 public class fishingRod extends item {
-    float power;
-    float durability;
 }

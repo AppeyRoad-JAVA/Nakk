@@ -17,7 +17,7 @@
  * along with Nakk.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.appeyroad.nakk.items.fishingBoats.ferries;
+package com.appeyroad.nakk.items.fishingBoats.ferrys;
 
 import com.appeyroad.nakk.items.fishingBoats.ferry;
 

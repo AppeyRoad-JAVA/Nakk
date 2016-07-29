@@ -22,8 +22,4 @@ package com.appeyroad.nakk.items;
 import com.appeyroad.nakk.item;
 
 public class fish extends item {
-    float strength;
-    float weight;
-    float hp;
-    int grade;
 }

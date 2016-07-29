@@ -22,7 +22,4 @@ package com.appeyroad.nakk.items;
 import com.appeyroad.nakk.item;
 
 public class fishingLine extends item {
-    float maxTension;
-    float damage;
-    float durability;
 }
