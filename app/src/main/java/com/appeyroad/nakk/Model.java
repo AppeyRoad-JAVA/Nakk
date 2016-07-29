@@ -32,42 +32,41 @@ import java.nio.FloatBuffer;
 public class Model {
     private final String vertexShaderCode =
             "attribute vec4 aPosition;" +
-                    "attribute vec2 aTexCoord;"+
-                    "attribute vec3 aNorCoord;"+
+            "attribute vec2 aTexCoord;"+
+            "attribute vec3 aNorCoord;"+
 
-                    "uniform mat4 uMVPMatrix;"+
+            "uniform mat4 uMVPMatrix;"+
 
-                    "varying vec2 vTexCoord;"+
-                    "varying vec3 vNorCoord;"+
-                    "varying vec4 vPosition;"+
-                    "void main() {" +
-                    "   gl_Position =  uMVPMatrix * aPosition;"+
-                    "   vTexCoord = aTexCoord;"+
-                    "   vNorCoord = aNorCoord;"+
-                    "   vPosition = aPosition;"+
-                    "}";
+            "varying vec2 vTexCoord;"+
+            "varying vec3 vNorCoord;"+
+            "varying vec4 vPosition;"+
+            "void main() {" +
+            "   gl_Position =  uMVPMatrix * aPosition;"+
+            "   vTexCoord = aTexCoord;"+
+            "   vNorCoord = aNorCoord;"+
+            "   vPosition = aPosition;"+
+            "}";
 
     private final String fragmentShaderCode =
             "precision mediump float;" +
-                    "uniform sampler2D uDiff;"+
-                    "uniform sampler2D uSpec;"+
-                    "uniform vec3 uLight;"+
-                    "uniform vec4 uEyePos;"+
+            "uniform sampler2D uDiff;"+
+            "uniform sampler2D uSpec;"+
+            "uniform vec3 uLight;"+
+            "uniform vec4 uEyePos;"+
 
-                    "varying vec2 vTexCoord;"+
-                    "varying vec3 vNorCoord;"+
-                    "varying vec4 vPosition;"+
-                    "void main() {" +
-                    "   vec3 n_uLight = normalize(uLight);"+
-                    "   vec3 n_vNorCoord = normalize(vNorCoord);"+
-                    "   vec3 n_viewer = normalize(vec3(uEyePos-vPosition));"+
-                    "   vec3 n_halfway = normalize(n_uLight + n_viewer);"+
+            "varying vec2 vTexCoord;"+
+            "varying vec3 vNorCoord;"+
+            "varying vec4 vPosition;"+
+            "void main() {" +
+            "   vec3 n_uLight = normalize(uLight);"+
+            "   vec3 n_vNorCoord = normalize(vNorCoord);"+
+            "   vec3 n_viewer = normalize(vec3(uEyePos-vPosition));"+
+            "   vec3 n_halfway = normalize(n_uLight + n_viewer);"+
 
-                    "   vec4 diffColor = max(dot(n_uLight, n_vNorCoord), 0.0) * texture2D(uDiff, vTexCoord);"+
-                    "   vec4 specColor = pow(max(dot(n_halfway, n_vNorCoord), 0.0), 20.0) * texture2D(uSpec, vTexCoord);"+
-                    "   gl_FragColor = diffColor+specColor;"+
-                    "}";
-    private Context context;
+            "   vec4 diffColor = max(dot(n_uLight, n_vNorCoord), 0.0) * texture2D(uDiff, vTexCoord);"+
+            "   vec4 specColor = pow(max(dot(n_halfway, n_vNorCoord), 0.0), 20.0) * texture2D(uSpec, vTexCoord);"+
+            "   gl_FragColor = diffColor+specColor;"+
+            "}";
 
     private FloatBuffer vertexBuffer;
     private FloatBuffer uvBuffer;
@@ -96,7 +95,6 @@ public class Model {
     public static float eyePos[] = new float[4];
 
     public Model(Context context, int vertResourceId, int diffMapResourceId, int specMapResourceId) {
-        this.context=context;
         InputStream inputStream = context.getResources().openRawResource(vertResourceId);
         try {
             InputStreamReader inputstreamReader = new InputStreamReader(inputStream, "utf-8");
