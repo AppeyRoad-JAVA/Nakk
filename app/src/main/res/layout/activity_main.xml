@@ -33,23 +33,24 @@
         android:layout_centerVertical="true" />
 
     <Button
-        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_start"
         android:id="@+id/button_main_start"
-        android:layout_marginBottom="82dp"
-        android:layout_alignBottom="@+id/imageView_main_start"
-        android:layout_centerHorizontal="true" />
+        android:layout_marginRight="76dp"
+        android:layout_marginEnd="76dp"
+        android:layout_marginTop="101dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
-        style="?android:attr/buttonStyleSmall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/main_exit"
         android:id="@+id/button_main_exit"
-        android:layout_alignTop="@+id/button_main_start"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="43dp" />
+        android:layout_below="@+id/button_main_start"
+        android:layout_alignLeft="@+id/button_main_start"
+        android:layout_alignStart="@+id/button_main_start" />
 
 </RelativeLayout>
