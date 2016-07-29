@@ -22,4 +22,9 @@ package com.appeyroad.nakk.items;
 import com.appeyroad.nakk.item;
 
 public class fishingBoat extends item {
+    float bonusHp;
+    int grade;
+    float bonusMoney;
+    float bonusExp;
+    int attraction;
 }

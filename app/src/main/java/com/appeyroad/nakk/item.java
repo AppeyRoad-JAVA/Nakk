@@ -21,5 +21,6 @@ package com.appeyroad.nakk;
 
 public class item {
     int price;
-
+    Model model;
+    int level;
 }

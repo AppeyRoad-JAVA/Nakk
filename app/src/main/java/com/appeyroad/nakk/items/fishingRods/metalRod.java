@@ -17,9 +17,9 @@
  * along with Nakk.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.appeyroad.nakk.items.fishingBoats.ferrys;
+package com.appeyroad.nakk.items.fishingRods;
 
-import com.appeyroad.nakk.items.fishingBoats.ferry;
+import com.appeyroad.nakk.items.fishingRod;
 
-public class cruise extends ferry {
+public class metalRod extends fishingRod {
 }

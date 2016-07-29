@@ -17,12 +17,9 @@
  * along with Nakk.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package com.appeyroad.nakk.items;
+package com.appeyroad.nakk.items.fishingBoats.ferries;
 
-import com.appeyroad.nakk.item;
+import com.appeyroad.nakk.items.fishingBoats.ferry;
 
-public class fishingLine extends item {
-    float maxTension;
-    float damage;
-    float durability;
+public class shoddyRaft extends ferry {
 }

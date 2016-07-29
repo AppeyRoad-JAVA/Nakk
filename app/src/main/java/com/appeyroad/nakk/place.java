@@ -19,5 +19,10 @@
 
 package com.appeyroad.nakk;
 
+import com.appeyroad.nakk.items.fish;
+import java.util.ArrayList;
+
 public class place {
+    ArrayList<Float> probability;
+    ArrayList<fish> fishes;
 }
