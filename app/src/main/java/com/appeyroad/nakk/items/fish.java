@@ -22,8 +22,9 @@ package com.appeyroad.nakk.items;
 import com.appeyroad.nakk.item;
 
 public class fish extends item {
-    float strength;
-    float weight;
-    float hp;
-    int grade;
+    int grade;          //물고기 등급
+    float strength;     //물고기 힘
+    float weight;       //물고기 무게
+    float hp;           //물고기 체력
+    int exp;            //잡을 시 경험치 보상
 }

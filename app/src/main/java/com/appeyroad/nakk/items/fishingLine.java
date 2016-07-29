@@ -22,7 +22,7 @@ package com.appeyroad.nakk.items;
 import com.appeyroad.nakk.item;
 
 public class fishingLine extends item {
-    float maxTension;
-    float damage;
-    float durability;
+    float maxTension;   //낚싯줄 최대 텐션
+    float damage;       //배틀 시 공격력 관여
+    float durability;   //배틀 시 낚싯줄 내구도
 }

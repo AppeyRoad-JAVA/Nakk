@@ -23,6 +23,7 @@ import com.appeyroad.nakk.items.fish;
 import java.util.ArrayList;
 
 public class place {
-    ArrayList<Float> probability;
-    ArrayList<fish> fishes;
+    int grade;                      //장소 분류(개울, 강, 근해, 원해)
+    ArrayList<fish> fishes;         //잡히는 물고기 풀
+    ArrayList<Float> probability;   //각 물고기가 나오는 확률
 }

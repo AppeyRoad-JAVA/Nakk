@@ -22,9 +22,9 @@ package com.appeyroad.nakk.items;
 import com.appeyroad.nakk.item;
 
 public class fishingBoat extends item {
-    float bonusHp;
-    int grade;
-    float bonusMoney;
-    float bonusExp;
-    int attraction;
+    int grade;          //낚싯배 분류(나룻배, 보트, 원양어선)
+    float bonusHp;      //추가효과 - user 체력 증가
+    float bonusMoney;   //추가효과 - 버는 돈 증가(비율)
+    float bonusExp;     //추가효과 - 버는 경험치 증가(비율)
+    float attraction;   //추가효과 - 배틀 시작 시까지 대기시간 감소(비율)
 }

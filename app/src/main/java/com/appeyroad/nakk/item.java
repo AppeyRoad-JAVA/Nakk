@@ -20,7 +20,8 @@
 package com.appeyroad.nakk;
 
 public class item {
-    int price;
-    Model model;
-    int level;
+    String name;    //아이템 이름
+    int price;      //아이템 가격
+    Model model;    //아이템 모델링
+    int level;      //아이템 구입 가능한 user 레벨
 }

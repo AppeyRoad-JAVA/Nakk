@@ -21,7 +21,9 @@ package com.appeyroad.nakk.items;
 
 import com.appeyroad.nakk.item;
 
+import java.util.ArrayList;
+
 public class fishingLure extends item {
-    int attraction;
-    int grade;
+    ArrayList<Integer> grade;       //잡을 수 있는 물고기 등급
+    float attraction;               //추가효과 - 배틀 시작 시까지 대기시간 감소(비율)
 }

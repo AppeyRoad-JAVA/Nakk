@@ -22,6 +22,6 @@ package com.appeyroad.nakk.items;
 import com.appeyroad.nakk.item;
 
 public class fishingRod extends item {
-    float power;
-    float durability;
+    float power;        //배틀 시 공격력 관여
+    float durability;   //낚싯대 내구도(영구적)
 }
