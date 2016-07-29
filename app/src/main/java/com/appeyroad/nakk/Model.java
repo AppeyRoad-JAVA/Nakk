@@ -83,8 +83,8 @@ public class Model {
     private float coords[];
     private float uv[];
     private float norCoords[];
-    private float light[] = {1, 1, 1};  //햇빛이므로 모든 점으로 일정한 방향으로 일정한 세기로 내리쬔다고 가정
-    public static float eyePos[] = new float[4];
+    private static float light[] = {1, -1, 1};  //햇빛이므로 모든 점으로 일정한 방향으로 일정한 세기로 내리쬔다고 가정
+    private static float eyePos[];
 
     public Model(Context context, int vertResourceId, int diffMapResourceId, int specMapResourceId) {
         InputStream inputStream = context.getResources().openRawResource(vertResourceId);
@@ -195,6 +195,9 @@ public class Model {
         GLES20.glDisableVertexAttribArray(mPositionHandle);
         GLES20.glDisableVertexAttribArray(mUvHandle);
         GLES20.glDisableVertexAttribArray(mNorCoordsHandle);
+    }
+    public static void setEyePos(float[] pos){
+        eyePos = pos;
     }
 }
 
