@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:id="@+id/layout_battle">
 
-    <com.appeyroad.nakk.BattleView android:id="@+id/surfaceview_Battle"
+    <com.appeyroad.nakk.BattleView android:id="@+id/surfaceview_battle"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 

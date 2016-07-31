@@ -28,7 +28,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Timer;
@@ -36,13 +35,12 @@ import java.util.TimerTask;
 
 public class BattleActivity extends AppCompatActivity {
     private BattleView battleView;
-    private RelativeLayout layout;
     private ProgressBar tensionBar;
-    private ImageView imageView;
-    private TextView textView;
+    private ImageView reelImage;
+    private TextView debugText;
 
     private boolean onBattle;
-    private int state; //LOOSING = 0, HOLDING = 1, REELING = 2
+    private int state; //LOOSING = 0, REELING = 1
     private final int LOOSING=0;
     private final int REELING=1;
 
@@ -69,11 +67,10 @@ public class BattleActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_battle);
-        layout = (RelativeLayout) findViewById(R.id.layout_battle);
-        battleView = (BattleView) findViewById(R.id.surfaceview_Battle);
-        imageView = (ImageView) findViewById(R.id.imageView_battle_reel);
+        battleView = (BattleView) findViewById(R.id.surfaceview_battle);
+        reelImage = (ImageView) findViewById(R.id.imageView_battle_reel);
         tensionBar = (ProgressBar) findViewById(R.id.progressBar_battle_tension);
-        textView = (TextView) findViewById(R.id.textView_battle_debug);
+        debugText = (TextView) findViewById(R.id.textView_battle_debug);
 
         tensionBar.setVisibility(View.INVISIBLE);
         onBattle = false;
@@ -92,9 +89,9 @@ public class BattleActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        textView.setText("");
+                        debugText.setText("");
                         for(int i=0; i<4; i++){
-                            textView.append(waterPosition[i]+"\n");
+                            debugText.append(waterPosition[i]+"\n");
                         }
                     }
                 });
@@ -116,7 +113,7 @@ public class BattleActivity extends AppCompatActivity {
                             }
                         }
                     };
-                    textView.setText("");
+                    debugText.setText("");
                     timer.scheduleAtFixedRate(stuck, 0, 100);
                 }/*else if(event.getAction()==MotionEvent.ACTION_MOVE) {
                     float dx = (curX - prevX) / battleView.getWidth() * 180.0f;
@@ -130,7 +127,7 @@ public class BattleActivity extends AppCompatActivity {
             }
         });
 
-        imageView.setOnTouchListener(new View.OnTouchListener() {
+        reelImage.setOnTouchListener(new View.OnTouchListener() {
             double prevAngle;
             double curAngle;
             float prevX;
@@ -172,8 +169,8 @@ public class BattleActivity extends AppCompatActivity {
         if(onBattle){
             return;
         }
-        pivotX = (double)(imageView.getWidth())/2;
-        pivotY = (double)(imageView.getHeight())/2;
+        pivotX = (double)(reelImage.getWidth())/2;
+        pivotY = (double)(reelImage.getHeight())/2;
         onBattle = true;
         handler.post(new Runnable() {
             @Override
@@ -248,11 +245,11 @@ public class BattleActivity extends AppCompatActivity {
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        textView.setText("distance: "+(int)distance);
-                        textView.append("\nlength: "+(int)length);
-                        textView.append("\ntension: "+(int)tension);
-                        textView.append("\nfish strength: "+(int)strength);
-                        textView.append("\nfish hp: "+(int)hp);
+                        debugText.setText("distance: "+(int)distance);
+                        debugText.append("\nlength: "+(int)length);
+                        debugText.append("\ntension: "+(int)tension);
+                        debugText.append("\nfish strength: "+(int)strength);
+                        debugText.append("\nfish hp: "+(int)hp);
                         tensionBar.setProgress((int)tension);
                     }
                 });

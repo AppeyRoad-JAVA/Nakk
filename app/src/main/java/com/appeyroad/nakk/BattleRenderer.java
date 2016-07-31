@@ -35,6 +35,9 @@ import javax.microedition.khronos.opengles.GL10;
 public class BattleRenderer implements GLSurfaceView.Renderer {
     private Context context;
     private ArrayList<Model> models = new ArrayList<>();
+    private ArrayList<Integer> rodIndex = new ArrayList<>();
+    private ArrayList<Integer> waterIndex = new ArrayList<>();
+    private ArrayList<Integer> landIndex = new ArrayList<>();
 
     private float width;
     private float height;
@@ -62,8 +65,11 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(1, 1, 1, 1.0f);
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         models.add(new RodModel(context));
+        rodIndex.add(0);
         models.add(new WaterModel(context));
+        waterIndex.add(1);
         models.add(new LandModel(context));
+        landIndex.add(2);
         Matrix.setIdentityM(mMMatrix, 0);
     }
     @Override
@@ -131,9 +137,8 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
         float[] inverseM = new float[16];
         float[] inverseV = new float[16];
 
-        float B = zNear * (float)Math.tan((fovY/2) * (Math.PI/180));
-        float A = B * width / height;
-        float[] scaled = {(2*pos[0] - width) * (A/width) , (2*pos[1] - height) * (B/height), -zNear, 1};
+        float scaledHeight = zNear * (float)Math.tan((fovY/2) * (Math.PI/180));
+        float[] scaled = {(2*pos[0] - width) * (scaledHeight/height) , (2*pos[1] - height) * (scaledHeight/height), -zNear, 1};
         Matrix.invertM(inverseM, 0, mMMatrix, 0);
         Matrix.invertM(inverseV, 0, mVMatrix, 0);
 
@@ -142,7 +147,8 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
         Matrix.multiplyMV(temp1, 0, inverseV, 0, scaled, 0);
         Matrix.multiplyMV(temp2, 0, inverseM, 0, temp1, 0);
 
-        float k = eyePos[2] / (eyePos[2] - temp2[2]);
+        WaterModel waterModel= (WaterModel)(models.get(waterIndex.get(0)));
+        float k = (eyePos[2] - waterModel.waterLevel) / (eyePos[2] - temp2[2]);
         for(int i=0; i<3; i++){
             result[i] = (1-k)*eyePos[i] + k*temp2[i];
         }
