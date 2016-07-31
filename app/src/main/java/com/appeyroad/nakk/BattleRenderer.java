@@ -36,9 +36,15 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
     private Context context;
     private ArrayList<Model> models = new ArrayList<>();
 
+    private float width;
+    private float height;
+    private float zNear = 10;
+    private float zFar = 3000;
+    private float fovY = 60.0f;
+    private float[] eyePos = new float[4];
     private float[] mMVPMatrix = new float[16];
-    private float[] mPMatrix = new float[16];
-    private float[] mVMatrix = new float[16];
+    public float[] mPMatrix = new float[16];
+    public float[] mVMatrix = new float[16];
     private float[] mMMatrix = new float[16];
     private float mAngle;
 
@@ -64,9 +70,9 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 unused) {
         float[] mVPMatrix = new float[16];
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        //Matrix.setLookAtM(mVMatrix, 0, -200, 190, 0, -190, 180, 0, -180, 190, 0); //옆에서 바라보는 시점
-        Matrix.setLookAtM(mVMatrix, 0, 0, -20, 190, 0, 0, 180, 0, 10, 200);
-        float[] eyePos = {0, -20, 190, 1};
+        //Matrix.setLookAtM(mVMatrix, 0, -200, 0, 190, -190, 0, 180, -190, 0, 200); //옆에서 바라보는 시점
+        Matrix.setLookAtM(mVMatrix, 0, 0, 0, 190, 0, 10, 186, 0, 0, 200);
+        eyePos[0] = 0; eyePos[1] = 0; eyePos[2] = 190; eyePos[3] =1;
         Model.setEyePos(eyePos);
         Matrix.multiplyMM(mVPMatrix, 0, mPMatrix, 0, mVMatrix, 0);
         Matrix.setRotateM(mMMatrix, 0, mAngle, 0, 0, 1);
@@ -77,9 +83,12 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
     }
     @Override
     public void onSurfaceChanged(GL10 unused, int width, int height) {
+        this.width = (float)width;
+        this.height = (float)height;
         GLES20.glViewport(0, 0, width, height);
         float ratio = (float) width/height;
-        Matrix.frustumM(mPMatrix, 0, -ratio, ratio, -1, 2, 1.5f, 3000);
+        //Matrix.frustumM(mPMatrix, 0, -ratio, ratio, -1, 2, 1.5f, 3000);
+        Matrix.perspectiveM(mPMatrix, 0, fovY, ratio, zNear, zFar);
     }
 
     public static int loadShader(int type, String shaderCode){
@@ -115,5 +124,28 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
             Log.e("BattleRenderer", glOperation + ": glError " + error);
             throw new RuntimeException(glOperation + ": glError " + error);
         }
+    }
+
+    public float[] convertPos(float[] pos){ //화면에 입력된 2D좌표를 waterModel의 3D좌표로 바꿈
+        float[] result = new float[4];
+        float[] inverseM = new float[16];
+        float[] inverseV = new float[16];
+
+        float B = zNear * (float)Math.tan((fovY/2) * (Math.PI/180));
+        float A = B * width / height;
+        float[] scaled = {(2*pos[0] - width) * (A/width) , (2*pos[1] - height) * (B/height), -zNear, 1};
+        Matrix.invertM(inverseM, 0, mMMatrix, 0);
+        Matrix.invertM(inverseV, 0, mVMatrix, 0);
+
+        float[] temp1 = new float[4];
+        float[] temp2 = new float[4];
+        Matrix.multiplyMV(temp1, 0, inverseV, 0, scaled, 0);
+        Matrix.multiplyMV(temp2, 0, inverseM, 0, temp1, 0);
+
+        float k = eyePos[2] / (eyePos[2] - temp2[2]);
+        for(int i=0; i<3; i++){
+            result[i] = (1-k)*eyePos[i] + k*temp2[i];
+        }
+        return result;
     }
 }

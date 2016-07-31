@@ -83,10 +83,21 @@ public class BattleActivity extends AppCompatActivity {
             float prevY;
             float curX;
             float curY;
+            float[] waterPosition;
             @Override
             public boolean onTouch(View view, MotionEvent event) {
-
                 curX=event.getX();  curY=event.getY();
+                float[] position = {curX, battleView.getHeight()-curY};
+                waterPosition = battleView.renderer.convertPos(position);
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        textView.setText("");
+                        for(int i=0; i<4; i++){
+                            textView.append(waterPosition[i]+"\n");
+                        }
+                    }
+                });
                 if (onBattle)
                     return true;
 
@@ -107,12 +118,12 @@ public class BattleActivity extends AppCompatActivity {
                     };
                     textView.setText("");
                     timer.scheduleAtFixedRate(stuck, 0, 100);
-                }else if(event.getAction()==MotionEvent.ACTION_MOVE) {
+                }/*else if(event.getAction()==MotionEvent.ACTION_MOVE) {
                     float dx = (curX - prevX) / battleView.getWidth() * 180.0f;
                     float dy = (curY - prevY) / battleView.getHeight() * 180.0f;
-                    battleView.rodRenderer.setAngle(battleView.rodRenderer.getAngle() + dx);
+                    battleView.renderer.setAngle(battleView.renderer.getAngle() + dx);
                     battleView.requestRender();
-                }
+                }*/
                 prevX = curX;
                 prevY = curY;
                 return true;

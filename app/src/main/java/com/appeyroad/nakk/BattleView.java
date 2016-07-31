@@ -23,14 +23,14 @@ import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 
 public class BattleView extends GLSurfaceView{
-    public final BattleRenderer rodRenderer;
+    public final BattleRenderer renderer;
     private Context context;
     public BattleView(Context context, AttributeSet attrs){
         super(context, attrs);
         this.context=context;
         setEGLContextClientVersion(2);
-        rodRenderer = new BattleRenderer(context);
-        setRenderer(rodRenderer);
+        renderer = new BattleRenderer(context);
+        setRenderer(renderer);
         setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
     }
 }

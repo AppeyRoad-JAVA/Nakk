@@ -64,7 +64,7 @@ public class Model {
             "   vec3 n_halfway = normalize(n_uLight + n_viewer);"+
 
             "   vec4 diffColor = max(dot(n_uLight, n_vNorCoord), 0.0) * texture2D(uDiff, vTexCoord);"+
-            "   vec4 specColor = pow(max(dot(n_halfway, n_vNorCoord), 0.0), 20.0) * texture2D(uSpec, vTexCoord);"+
+            "   vec4 specColor = pow(max(dot(n_halfway, n_vNorCoord), 0.0), 30.0) * texture2D(uSpec, vTexCoord);"+
             "   gl_FragColor = diffColor+specColor;"+
             "}";
 
@@ -207,11 +207,21 @@ class RodModel extends Model{
     }
 }
 class WaterModel extends Model{
+    public final float waterLevel=0;
+    public final float left = -400;
+    public final float right = 400;
+    public final float back = 100;
+    public final float front  = 1100;
     public WaterModel(Context context){
         super(context, R.raw.water, R.drawable.water_deep, R.drawable.black);
     }
 }
 class LandModel extends Model{
+    public final float landLevel=20;
+    public final float left = -400;
+    public final float right = 400;
+    public final float back = -100;
+    public final float front = 100;
     public LandModel(Context context){
         super(context, R.raw.land, R.drawable.land, R.drawable.black);
     }
