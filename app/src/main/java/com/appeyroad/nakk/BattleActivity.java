@@ -28,7 +28,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import java.util.Timer;
@@ -36,9 +35,10 @@ import java.util.TimerTask;
 
 public class BattleActivity extends AppCompatActivity {
     private BattleView battleView;
-    private ProgressBar tensionBar;
     private ImageView reelImage;
     private TextView debugText;
+    private ImageView tensionBar;
+    private ImageView emptyTensionBar;
 
     private boolean onBattle;
     private int state; //LOOSING = 0, REELING = 1
@@ -60,6 +60,7 @@ public class BattleActivity extends AppCompatActivity {
     private double weight;
     private double distance;
     private double length;
+    private double maxTension;
     private double tension;
     private double maxHp;
     private double hp;
@@ -70,10 +71,14 @@ public class BattleActivity extends AppCompatActivity {
         setContentView(R.layout.activity_battle);
         battleView = (BattleView) findViewById(R.id.surfaceview_battle);
         reelImage = (ImageView) findViewById(R.id.imageView_battle_reel);
-        tensionBar = (ProgressBar) findViewById(R.id.progressBar_battle_tension);
+        tensionBar = (ImageView) findViewById(R.id.imageView_battle_tension_full);
+        emptyTensionBar = (ImageView) findViewById(R.id.imageView_battle_tension);
         debugText = (TextView) findViewById(R.id.textView_battle_debug);
 
         tensionBar.setVisibility(View.INVISIBLE);
+        emptyTensionBar.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+        emptyTensionBar.setPivotY(emptyTensionBar.getTop());
+        emptyTensionBar.setVisibility(View.INVISIBLE);
         onBattle = false;
 
         battleView.setOnTouchListener(new View.OnTouchListener() {
@@ -178,8 +183,8 @@ public class BattleActivity extends AppCompatActivity {
             @Override
             public void run() {
                 tensionBar.setVisibility(View.VISIBLE);
-                tensionBar.setMax(600);
-                tensionBar.setProgress(0);
+                emptyTensionBar.setVisibility(View.VISIBLE);
+                emptyTensionBar.setScaleY(0);
             }
         });
 
@@ -188,6 +193,7 @@ public class BattleActivity extends AppCompatActivity {
         maxStrength=150;
         strength=maxStrength;
         weight=100;
+        maxTension=600;
         tension=300;
         durability=100;
 
@@ -213,33 +219,37 @@ public class BattleActivity extends AppCompatActivity {
                 if(distance<length){
                     distance=length;
                 }
-                if(distance<50) endBattle(true);
+                if(distance<50) {
+                    endBattle(true);
+                    return;
+                }
 
                 if(tension>450) {
-                    handler.post(new Runnable() {
+                    /*handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            tensionBar.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
+                            tensionBar.setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
                         }
-                    });
+                    });*/
                     durability -= (tension - 450)*(1.0/BATTLE_FRAME);
                     if(durability<0){
                         endBattle(false);
                         return;
                     }
                 }
-                else{
+                /*else{
                     handler.post(new Runnable() {
                         @Override
                         public void run() {
-                            tensionBar.getProgressDrawable().clearColorFilter();
+                            tensionBar.clearColorFilter();
                         }
                     });
-                }
+                }*/
                 reelW=0;
 
                 if(tension>600 || tension<strength/4) {
                     endBattle(false);
+                    return;
                 }
                 if(tension>=300)
                     hp-=(tension-300)*(2.0/BATTLE_FRAME);
@@ -252,7 +262,7 @@ public class BattleActivity extends AppCompatActivity {
                         debugText.append("\ntension: "+(int)tension);
                         debugText.append("\nfish strength: "+(int)strength);
                         debugText.append("\nfish hp: "+(int)hp);
-                        tensionBar.setProgress((int)tension);
+                        emptyTensionBar.setScaleY(1-(float)(tension/maxTension));
                     }
                 });
             }
@@ -268,6 +278,13 @@ public class BattleActivity extends AppCompatActivity {
             @Override
             public void run() {
                 tensionBar.setVisibility(View.INVISIBLE);
+                emptyTensionBar.setVisibility(View.INVISIBLE);
+                if(win ==true){
+                    debugText.append("\nwin!");
+                }
+                else{
+                    debugText.append("\nlose!");
+                }
             }
         });
         Matrix.setIdentityM(battleView.renderer.models.get(battleView.renderer.lineIndex.get(0)).mMMatrix, 0);
