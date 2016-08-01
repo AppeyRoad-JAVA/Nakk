@@ -21,6 +21,7 @@ package com.appeyroad.nakk;
 
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.opengl.Matrix;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
@@ -83,9 +84,13 @@ public class BattleActivity extends AppCompatActivity {
             float[] waterPosition;
             @Override
             public boolean onTouch(View view, MotionEvent event) {
+                if (onBattle)
+                    return true;
                 curX=event.getX();  curY=event.getY();
                 float[] position = {curX, battleView.getHeight()-curY};
-                waterPosition = battleView.renderer.convertPos(position);
+                waterPosition = battleView.renderer.convertPos(position, 0);
+                battleView.drawLine(position);
+
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
@@ -95,11 +100,8 @@ public class BattleActivity extends AppCompatActivity {
                         }
                     }
                 });
-                if (onBattle)
-                    return true;
 
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-
                     Timer timer = new Timer();
                     if (stuck != null) {
                         stuck.cancel();
@@ -268,6 +270,8 @@ public class BattleActivity extends AppCompatActivity {
                 tensionBar.setVisibility(View.INVISIBLE);
             }
         });
+        Matrix.setIdentityM(battleView.renderer.models.get(battleView.renderer.lineIndex.get(0)).mMMatrix, 0);
+        battleView.requestRender();
         state=LOOSING;
         battle.cancel();
     }

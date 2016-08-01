@@ -34,21 +34,20 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class BattleRenderer implements GLSurfaceView.Renderer {
     private Context context;
-    private ArrayList<Model> models = new ArrayList<>();
-    private ArrayList<Integer> rodIndex = new ArrayList<>();
-    private ArrayList<Integer> waterIndex = new ArrayList<>();
-    private ArrayList<Integer> landIndex = new ArrayList<>();
+    public ArrayList<Model> models = new ArrayList<>();
+    public ArrayList<Integer> rodIndex = new ArrayList<>();
+    public ArrayList<Integer> waterIndex = new ArrayList<>();
+    public ArrayList<Integer> landIndex = new ArrayList<>();
+    public ArrayList<Integer> lineIndex = new ArrayList<>();
 
     private float width;
     private float height;
     private float zNear = 10;
     private float zFar = 3000;
     private float fovY = 60.0f;
-    private float[] eyePos = new float[4];
-    private float[] mMVPMatrix = new float[16];
+    private float[] eyePos = {0, 0, 190, 1};
     public float[] mPMatrix = new float[16];
     public float[] mVMatrix = new float[16];
-    private float[] mMMatrix = new float[16];
     private float mAngle;
 
     public BattleRenderer(Context context){
@@ -65,26 +64,24 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
         GLES20.glClearColor(1, 1, 1, 1.0f);
         GLES20.glEnable(GLES20.GL_DEPTH_TEST);
         models.add(new RodModel(context));
-        rodIndex.add(0);
+        rodIndex.add(models.size()-1);
         models.add(new WaterModel(context));
-        waterIndex.add(1);
+        waterIndex.add(models.size()-1);
         models.add(new LandModel(context));
-        landIndex.add(2);
-        Matrix.setIdentityM(mMMatrix, 0);
+        landIndex.add(models.size()-1);
+        models.add(new LineModel(context));
+        lineIndex.add(models.size()-1);
     }
     @Override
     public void onDrawFrame(GL10 unused) {
         float[] mVPMatrix = new float[16];
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        //Matrix.setLookAtM(mVMatrix, 0, -200, 0, 190, -190, 0, 180, -190, 0, 200); //옆에서 바라보는 시점
-        Matrix.setLookAtM(mVMatrix, 0, 0, 0, 190, 0, 10, 186, 0, 0, 200);
-        eyePos[0] = 0; eyePos[1] = 0; eyePos[2] = 190; eyePos[3] =1;
+        Matrix.setLookAtM(mVMatrix, 0, eyePos[0], eyePos[1], eyePos[2], 0, 10, 186, 0, 0, 200);
         Model.setEyePos(eyePos);
+        Matrix.rotateM(mVMatrix, 0, mAngle, 0, 0, -1);
         Matrix.multiplyMM(mVPMatrix, 0, mPMatrix, 0, mVMatrix, 0);
-        Matrix.setRotateM(mMMatrix, 0, mAngle, 0, 0, 1);
-        Matrix.multiplyMM(mMVPMatrix, 0, mVPMatrix, 0, mMMatrix, 0);
         for(int i=0; i<models.size(); i++){
-            models.get(i).draw(mMVPMatrix);
+            models.get(i).draw(mVPMatrix);
         }
     }
     @Override
@@ -132,25 +129,20 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
         }
     }
 
-    public float[] convertPos(float[] pos){ //화면에 입력된 2D좌표를 waterModel의 3D좌표로 바꿈
+    public float[] convertPos(float[] pos, float level){ //화면에 입력된 2D좌표를 z = level 평면상의 3D좌표로 바꿈
         float[] result = new float[4];
-        float[] inverseM = new float[16];
         float[] inverseV = new float[16];
 
         float scaledHeight = zNear * (float)Math.tan((fovY/2) * (Math.PI/180));
         float[] scaled = {(2*pos[0] - width) * (scaledHeight/height) , (2*pos[1] - height) * (scaledHeight/height), -zNear, 1};
-        Matrix.invertM(inverseM, 0, mMMatrix, 0);
+
         Matrix.invertM(inverseV, 0, mVMatrix, 0);
 
-        float[] temp1 = new float[4];
-        float[] temp2 = new float[4];
-        Matrix.multiplyMV(temp1, 0, inverseV, 0, scaled, 0);
-        Matrix.multiplyMV(temp2, 0, inverseM, 0, temp1, 0);
-
-        WaterModel waterModel= (WaterModel)(models.get(waterIndex.get(0)));
-        float k = (eyePos[2] - waterModel.waterLevel) / (eyePos[2] - temp2[2]);
+        float[] temp = new float[4];
+        Matrix.multiplyMV(temp, 0, inverseV, 0, scaled, 0);
+        float k = (eyePos[2] - level) / (eyePos[2] - temp[2]);
         for(int i=0; i<3; i++){
-            result[i] = (1-k)*eyePos[i] + k*temp2[i];
+            result[i] = (1-k)*eyePos[i] + k*temp[i];
         }
         return result;
     }

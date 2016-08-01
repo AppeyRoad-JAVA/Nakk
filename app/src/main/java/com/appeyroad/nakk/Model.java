@@ -20,6 +20,7 @@ package com.appeyroad.nakk;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -86,6 +87,8 @@ public class Model {
     private static float light[] = {1, -1, 1};  //햇빛이므로 모든 점으로 일정한 방향으로 일정한 세기로 내리쬔다고 가정
     private static float eyePos[];
 
+    public float[] mMMatrix = new float[16];
+
     public Model(Context context, int vertResourceId, int diffMapResourceId, int specMapResourceId) {
         InputStream inputStream = context.getResources().openRawResource(vertResourceId);
         try {
@@ -144,6 +147,8 @@ public class Model {
         mDiffMapDataHandle = BattleRenderer.loadTexture(context, diffMapResourceId);
         mSpecMapDataHandle = BattleRenderer.loadTexture(context, specMapResourceId);
 
+        Matrix.setIdentityM(mMMatrix, 0);
+
         int vertexShader = BattleRenderer.loadShader(GLES20.GL_VERTEX_SHADER, vertexShaderCode);
         int fragmentShader = BattleRenderer.loadShader(GLES20.GL_FRAGMENT_SHADER, fragmentShaderCode);
         mProgram = GLES20.glCreateProgram();
@@ -152,7 +157,9 @@ public class Model {
         GLES20.glLinkProgram(mProgram);
     }
 
-    public void draw(float[] mvpMatrix) {
+    public void draw(float[] mVPMatrix) {
+        float[] mMVPMatrix = new float[16];
+        Matrix.multiplyMM(mMVPMatrix, 0, mVPMatrix, 0, mMMatrix, 0);
         GLES20.glUseProgram(mProgram);
 
         int mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
@@ -182,7 +189,7 @@ public class Model {
 
         int mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
         BattleRenderer.checkGlError("glGetUniformLocation");
-        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mvpMatrix, 0);
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
         BattleRenderer.checkGlError("glUniformMatrix4fv");
 
         int mLightHandle = GLES20.glGetUniformLocation(mProgram, "uLight");
@@ -202,6 +209,7 @@ public class Model {
 }
 
 class RodModel extends Model{
+    public final float[] rodEnd = {0, 99, 179, 1};
     public RodModel(Context context){
         super(context, R.raw.rod2, R.drawable.rod2_diff, R.drawable.rod2_specular);
     }
@@ -210,8 +218,8 @@ class WaterModel extends Model{
     public final float waterLevel=0;
     public final float left = -400;
     public final float right = 400;
-    public final float back = 100;
-    public final float front  = 1100;
+    public final float back = 150;
+    public final float front  = 1150;
     public WaterModel(Context context){
         super(context, R.raw.water, R.drawable.water_deep, R.drawable.black);
     }
@@ -220,9 +228,15 @@ class LandModel extends Model{
     public final float landLevel=20;
     public final float left = -400;
     public final float right = 400;
-    public final float back = -100;
-    public final float front = 100;
+    public final float back = -150;
+    public final float front = 150;
     public LandModel(Context context){
         super(context, R.raw.land, R.drawable.land, R.drawable.black);
+    }
+}
+
+class LineModel extends Model{
+    public LineModel(Context context){
+        super(context, R.raw.line, R.drawable.black, R.drawable.black);
     }
 }
