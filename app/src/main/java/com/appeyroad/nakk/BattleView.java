@@ -59,7 +59,6 @@ public class BattleView extends GLSurfaceView{
         Matrix.translateM(mMMatrix, 0, rodEnd[0], rodEnd[1], rodEnd[2]);
         Matrix.rotateM(mMMatrix, 0, -phi, axis[0], axis[1], axis[2]);
         Matrix.rotateM(mMMatrix, 0, theta, 1, 0, 0);
-        Matrix.translateM(mMMatrix, 0, -rodEnd[0], -rodEnd[1], -rodEnd[2]);
         renderer.models.get(renderer.lineIndex.get(0)).mMMatrix =mMMatrix;
         requestRender();
     }

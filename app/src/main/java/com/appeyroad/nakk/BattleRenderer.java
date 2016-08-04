@@ -76,9 +76,13 @@ public class BattleRenderer implements GLSurfaceView.Renderer {
     public void onDrawFrame(GL10 unused) {
         float[] mVPMatrix = new float[16];
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        Matrix.setLookAtM(mVMatrix, 0, eyePos[0], eyePos[1], eyePos[2], 0, 10, 186, 0, 0, 200);
+
+        eyePos[0]=-100*(float)Math.sin(mAngle * Math.PI / 180.0f);
+        eyePos[1]=100*(1-(float)Math.cos(mAngle * Math.PI / 180.0f));
+
+        Matrix.setLookAtM(mVMatrix, 0, eyePos[0], eyePos[1], eyePos[2], 0, 50, 170, eyePos[0], eyePos[1], 200);
         Model.setEyePos(eyePos);
-        Matrix.rotateM(mVMatrix, 0, mAngle, 0, 0, -1);
+        //Matrix.rotateM(mVMatrix, 0, mAngle, 0, 0, -1);
         Matrix.multiplyMM(mVPMatrix, 0, mPMatrix, 0, mVMatrix, 0);
         for(int i=0; i<models.size(); i++){
             models.get(i).draw(mVPMatrix);

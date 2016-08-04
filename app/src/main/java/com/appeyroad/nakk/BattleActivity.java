@@ -122,12 +122,12 @@ public class BattleActivity extends AppCompatActivity {
                     };
                     debugText.setText("");
                     timer.scheduleAtFixedRate(stuck, 0, 100);
-                }/*else if(event.getAction()==MotionEvent.ACTION_MOVE) {
+                }else if(event.getAction()==MotionEvent.ACTION_MOVE) {
                     float dx = (curX - prevX) / battleView.getWidth() * 180.0f;
                     float dy = (curY - prevY) / battleView.getHeight() * 180.0f;
                     battleView.renderer.setAngle(battleView.renderer.getAngle() + dx);
                     battleView.requestRender();
-                }*/
+                }
                 prevX = curX;
                 prevY = curY;
                 return true;
@@ -225,26 +225,12 @@ public class BattleActivity extends AppCompatActivity {
                 }
 
                 if(tension>450) {
-                    /*handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            tensionBar.setColorFilter(Color.RED, PorterDuff.Mode.MULTIPLY);
-                        }
-                    });*/
                     durability -= (tension - 450)*(1.0/BATTLE_FRAME);
                     if(durability<0){
                         endBattle(false);
                         return;
                     }
                 }
-                /*else{
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            tensionBar.clearColorFilter();
-                        }
-                    });
-                }*/
                 reelW=0;
 
                 if(tension>600 || tension<strength/4) {
@@ -287,7 +273,10 @@ public class BattleActivity extends AppCompatActivity {
                 }
             }
         });
+        RodModel rodModel = (RodModel)battleView.renderer.models.get(battleView.renderer.rodIndex.get(0));
+        float[] rodEnd = rodModel.rodEnd;
         Matrix.setIdentityM(battleView.renderer.models.get(battleView.renderer.lineIndex.get(0)).mMMatrix, 0);
+        Matrix.translateM(battleView.renderer.models.get(battleView.renderer.lineIndex.get(0)).mMMatrix, 0, rodEnd[0], rodEnd[1], rodEnd[2]);
         battleView.requestRender();
         state=LOOSING;
         battle.cancel();
