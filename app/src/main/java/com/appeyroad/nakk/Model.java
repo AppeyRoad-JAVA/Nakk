@@ -211,10 +211,11 @@ public class Model {
 }
 
 class RodModel extends Model{
-    public final float[] rodEnd = {0, 99, 179.7f, 1};
-    public float[] rodStart = {0, 66, 129.2f, 1};
-    public float[] rodDirection = {0, 0.5f, (float)Math.sqrt(3)/2.0f, 0};
-    public final float[] gravity = {0, 0, -980f};   //cm 단위
+    private final float[] rodEnd = {0, 99, 179.7f, 1};
+    private float[] rodStart = {0, 66, 129.2f, 1};
+    private float[] rodDirection = {0, 0.5f, (float)Math.sqrt(3)/2.0f, 0};
+    private final float[] gravity = {0, 0, -980f};   //cm 단위
+    private float[] tension = new float[3];
     private float stiffness = 200000;
     private float density = 0.01f;
     public RodModel(Context context){
@@ -228,6 +229,7 @@ class RodModel extends Model{
                 "uniform vec4 uRodStart;"+
                 "uniform vec4 uRodDirection;"+
                 "uniform vec3 uGravity;"+
+                "uniform vec3 uTension;"+
                 "uniform float uStiffness;"+
                 "uniform float uDensity;"+
 
@@ -239,7 +241,7 @@ class RodModel extends Model{
                 "   float xSize = dot(aPosition - uRodStart, uRodDirection);"+
                 "   vec3 x = vec3(uRodDirection) * xSize;"+
                 "   if(xSize>0.0){"+
-                "       vec4 w = vec4((((length(x)*length(x))/(24.0*uStiffness))*cross(cross(x, uDensity * uGravity), x)), 0.0);"+
+                "       vec4 w = vec4((((length(x)*length(x))/(24.0*uStiffness))*cross(cross(x, uDensity * uGravity + uTension), x)), 0.0);"+
                 "       temp = aPosition + w;"+
                 "   }"+
                 "   gl_Position =  uMVPMatrix * temp;"+
@@ -295,6 +297,8 @@ class RodModel extends Model{
         GLES20.glUniform4fv(mRodDirectionHandle, 1, rodDirection, 0);
         int mGravityHandle = GLES20.glGetUniformLocation(mProgram, "uGravity");
         GLES20.glUniform3fv(mGravityHandle, 1, gravity, 0);
+        int mTensionHandle = GLES20.glGetUniformLocation(mProgram, "uTension");
+        GLES20.glUniform3fv(mTensionHandle, 1, tension, 0);
         int mStiffnessHandle = GLES20.glGetUniformLocation(mProgram, "uStiffness");
         GLES20.glUniform1f(mStiffnessHandle, stiffness);
         int mDensityHandle = GLES20.glGetUniformLocation(mProgram, "uDensity");
@@ -316,14 +320,24 @@ class RodModel extends Model{
         for(int i=0; i<3; i++){
             x[i] = rodDirection[i] * xSize;
         }
-        float constant = density*(x[0]*x[0] + x[1]*x[1] + x[2]*x[2]) / (24.0f*stiffness);
+        float constant = (x[0]*x[0] + x[1]*x[1] + x[2]*x[2]) / (24.0f*stiffness);
+        float[] netForce = new float[3];
         for(int i=0; i<3; i++){
-            rodEnd[i] = rodEnd[i] + constant*(x[(i+2)%3]*x[(i+2)%3]*gravity[i] - x[i]*x[(i+2)%3]*gravity[(i+2)%3]
-                    - x[i]*x[(i+1)%3]*gravity[(i+1)%3] + x[(i+1)%3]*x[(i+1)%3]*gravity[i]);
+            netForce[i] = density * gravity[i] + tension[i];
+        }
+        for(int i=0; i<3; i++){
+            rodEnd[i] = rodEnd[i] + constant*(x[(i+2)%3]*x[(i+2)%3]*netForce[i] - x[i]*x[(i+2)%3]*netForce[(i+2)%3]
+                    - x[i]*x[(i+1)%3]*netForce[(i+1)%3] + x[(i+1)%3]*x[(i+1)%3]*netForce[i]);
         }
         GLES20.glDisableVertexAttribArray(mPositionHandle);
         GLES20.glDisableVertexAttribArray(mUvHandle);
         GLES20.glDisableVertexAttribArray(mNorCoordsHandle);
+    }
+    public void setTension(float[] tension){
+        this.tension=tension;
+    }
+    public float[] getRodEnd(){
+        return rodEnd;
     }
 }
 class WaterModel extends Model{
@@ -348,7 +362,88 @@ class LandModel extends Model{
 }
 
 class LineModel extends Model{
+    private float[] lineDirection = {0, 0, -1, 0};
+    private float[] lineStart = new float[4];
+    private float[] floatPos = new float[4];    //찌(float)의 위치
     public LineModel(Context context){
         super(context, R.raw.line, R.drawable.black, R.drawable.black);
+    }
+    @Override
+    public void draw(float[] mVPMatrix) {
+        float[] mMVPMatrix = new float[16];
+
+        float length;
+        for(int i=0; i<3; i++){
+            lineDirection[i] = floatPos[i] - lineStart[i];
+        }
+        length = Matrix.length(lineDirection[0], lineDirection[1], lineDirection[2]);
+        for(int i=0; i<3; i++){
+            lineDirection[i] = lineDirection[i]/length;
+        }
+        float theta = (float)(Math.atan2((double)lineDirection[1], -(double)lineDirection[2]) * 180 / Math.PI);
+        float phi = (float)(Math.atan2((double)lineDirection[0],
+                (double)(Matrix.length(0, lineDirection[1], lineDirection[2]))) * 180 / Math.PI);
+        float[] axis = {0, -lineDirection[2], lineDirection[1], 0};
+        Matrix.setIdentityM(mMMatrix, 0);
+        Matrix.translateM(mMMatrix, 0, lineStart[0], lineStart[1], lineStart[2]);
+        Matrix.rotateM(mMMatrix, 0, -phi, axis[0], axis[1], axis[2]);
+        Matrix.rotateM(mMMatrix, 0, theta, 1, 0, 0);
+        Matrix.multiplyMM(mMVPMatrix, 0, mVPMatrix, 0, mMMatrix, 0);
+
+        GLES20.glUseProgram(mProgram);
+
+        int mPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
+        GLES20.glEnableVertexAttribArray(mPositionHandle);
+        GLES20.glVertexAttribPointer(mPositionHandle, COORDS_PER_VERTEX, GLES20.GL_FLOAT,
+                false, COORDS_PER_VERTEX * 4, vertexBuffer);
+
+        int mDiffMapHandle = GLES20.glGetUniformLocation(mProgram, "uDiff");
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mDiffMapDataHandle);
+        GLES20.glUniform1i(mDiffMapHandle, 0);
+
+        int mSpecMapHandle = GLES20.glGetUniformLocation(mProgram, "uSpec");
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, mSpecMapDataHandle);
+        GLES20.glUniform1i(mSpecMapHandle, 1);
+
+        int mUvHandle = GLES20.glGetAttribLocation(mProgram, "aTexCoord");
+        GLES20.glEnableVertexAttribArray(mUvHandle);
+        GLES20.glVertexAttribPointer(mUvHandle, TEXCOORDS_PER_VERTEX, GLES20.GL_FLOAT,
+                false, TEXCOORDS_PER_VERTEX*4, uvBuffer);
+
+        int mNorCoordsHandle = GLES20.glGetAttribLocation(mProgram, "aNorCoord");
+        GLES20.glEnableVertexAttribArray(mNorCoordsHandle);
+        GLES20.glVertexAttribPointer(mNorCoordsHandle, NORCOORDS_PER_VERTEX, GLES20.GL_FLOAT,
+                false, NORCOORDS_PER_VERTEX*4, norCoordsBuffer);
+
+        int mMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+        BattleRenderer.checkGlError("glGetUniformLocation");
+        GLES20.glUniformMatrix4fv(mMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+        BattleRenderer.checkGlError("glUniformMatrix4fv");
+
+        int mLightHandle = GLES20.glGetUniformLocation(mProgram, "uLight");
+        GLES20.glUniform3fv(mLightHandle, 1, light, 0);
+        int mEyePosHandle = GLES20.glGetUniformLocation(mProgram, "uEyePos");
+        GLES20.glUniform4fv(mEyePosHandle, 1, eyePos, 0);
+
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, coords.length / COORDS_PER_VERTEX);
+        GLES20.glDisableVertexAttribArray(mPositionHandle);
+        GLES20.glDisableVertexAttribArray(mUvHandle);
+        GLES20.glDisableVertexAttribArray(mNorCoordsHandle);
+    }
+    public void initFloatPos(){
+        floatPos[0] = lineStart[0];
+        floatPos[1] = lineStart[1];
+        floatPos[2]= 0;
+    }
+    public float[] getLineDirection(){
+        return lineDirection;
+    }
+    public void setLineStart(float[] v){
+        lineStart=v;
+    }
+    public void setFloatPos(float[] v){
+        floatPos=v;
     }
 }
