@@ -36,4 +36,28 @@
         android:src="@android:color/holo_blue_bright"
         android:onClick="onPlacesClicked" />
 
+    <ImageView
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:id="@+id/imageView_main2_shop"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignBottom="@+id/imageView_main2_places"
+        android:onClick="onShopClicked"
+        android:background="#1100ff" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="Shop"
+        android:id="@+id/textView_main2_shop"
+        android:layout_marginTop="58dp"
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@+id/imageView_main2_shop"
+        android:layout_alignStart="@+id/imageView_main2_shop"
+        android:layout_marginLeft="48dp"
+        android:layout_marginStart="48dp" />
+
 </RelativeLayout>

@@ -10,7 +10,8 @@
         android:layout_alignParentTop="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:src="@color/accent_material_dark" />
+        android:src="@color/accent_material_dark"
+        android:onClick="onNullClicked" />
 
     <ImageView
         android:layout_width="130dp"
@@ -18,7 +19,8 @@
         android:id="@+id/imageView_shop_fishingRod"
         android:src="@android:color/holo_green_dark"
         android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:onClick="onNullClicked" />
 
     <ImageView
         android:layout_width="130dp"
@@ -27,7 +29,8 @@
         android:src="@android:color/holo_orange_light"
         android:layout_alignParentTop="true"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:onClick="onNullClicked" />
 
     <ImageView
         android:layout_width="130dp"
@@ -36,7 +39,8 @@
         android:src="@android:color/holo_red_light"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"
+        android:onClick="onNullClicked" />
 
     <ImageView
         android:layout_width="130dp"
@@ -44,7 +48,8 @@
         android:id="@+id/imageView_shop_boat"
         android:src="@android:color/holo_green_light"
         android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true" />
+        android:layout_centerHorizontal="true"
+        android:onClick="onNullClicked" />
 
     <ImageView
         android:layout_width="130dp"
@@ -53,6 +58,15 @@
         android:src="@android:color/holo_purple"
         android:layout_alignBottom="@+id/imageView_shop_boat"
         android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
+        android:layout_alignParentEnd="true"
+        android:onClick="onNullClicked" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="나가기"
+        android:id="@+id/button_shop_back"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:onClick="onShopBackClicked" />
 </RelativeLayout>

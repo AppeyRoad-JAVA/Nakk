@@ -60,4 +60,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, BattleActivity.class);
         startActivity(intent);
     }
+    public void onShopClicked(View v) {
+        Intent intent = new Intent(this, ShopActivity.class);
+        startActivity(intent);
+    }
 }

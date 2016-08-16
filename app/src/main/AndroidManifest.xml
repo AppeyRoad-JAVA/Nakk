@@ -38,6 +38,7 @@
         <activity android:name=".BattleActivity"
                   android:screenOrientation="landscape">
         </activity>
+        <activity android:name=".ShopActivity"></activity>
     </application>
 
 </manifest>
