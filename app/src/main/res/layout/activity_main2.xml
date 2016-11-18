@@ -36,4 +36,11 @@
         android:src="@android:color/holo_blue_bright"
         android:onClick="onPlacesClicked" />
 
+    <ImageView android:layout_width="150dp"
+               android:layout_height="150dp"
+               android:layout_centerHorizontal="true"
+               android:layout_alignParentTop="true"
+               android:src="#345678"
+               android:onClick="onFishClicked"/>
+
 </RelativeLayout>

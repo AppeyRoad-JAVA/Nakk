@@ -24,109 +24,107 @@ import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.DisplayMetrics;
-import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.FrameLayout;
+import android.view.ViewTreeObserver;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class BattleActivity extends AppCompatActivity{
-    private final int BATTLE_FRAME=30;
-    private ProgressBar tensionBar;
+public class BattleActivity extends AppCompatActivity {
+    private BattleView battleView;
+    private ImageView reelImage;
+    private TextView debugText;
+    private ImageView tensionBar;
+    private ImageView emptyTensionBar;
+
+    public RodModel rodModel;
+    public WaterModel waterModel;
+    public LandModel landModel;
+    public LineModel lineModel;
+    private boolean initialized = false;
+
     private boolean onBattle;
-    private ImageView imageView1;
-    private ImageView imageView2;
-    private ImageView imageView3;
-    private ImageView imageView4;
-    private ImageView imageView5;
-    private TextView textView;
-    private Line line;
-    private RelativeLayout layout;
-    private FrameLayout layout2;
+    private int state; //LOOSING = 0, REELING = 1
+    private final int LOOSING=0;
+    private final int REELING=1;
 
     private TimerTask battle;
     private TimerTask stuck;
-    private Handler handler = new Handler();
+    private Handler handler=new Handler();
 
-    private int waterLevel;
+    private double pivotX;
+    private double pivotY;
 
+    private final int BATTLE_FRAME=30;
+
+    private double reelW; //angular velocity
     private double maxStrength;
     private double strength;
     private double weight;
     private double distance;
     private double length;
+    private double maxTension;
     private double tension;
     private double maxHp;
     private double hp;
     private double durability;
-
-    private int state; //LOOSING = 0, HOLDING = 1, REELING = 2
-    private final int LOOSING=0;
-    private final int REELING=1;
-
-    private double reelW; //angular velocity
-    private double pivotX;
-    private double pivotY;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_battle);
+        battleView = (BattleView) findViewById(R.id.surfaceview_battle);
+        reelImage = (ImageView) findViewById(R.id.imageView_battle_reel);
+        tensionBar = (ImageView) findViewById(R.id.imageView_battle_tension_full);
+        emptyTensionBar = (ImageView) findViewById(R.id.imageView_battle_tension);
+        debugText = (TextView) findViewById(R.id.textView_battle_debug);
 
-        tensionBar = (ProgressBar) findViewById(R.id.progressBar_battle_tension);
-        tensionBar.setVisibility(View.INVISIBLE);
-        onBattle = false;
-
-        imageView1 = (ImageView) findViewById(R.id.imageView_battle_rod_normal);
-        imageView2 = (ImageView) findViewById(R.id.imageView_battle_rod_bent);
-        imageView3 = (ImageView) findViewById(R.id.imageView_battle_water);
-        imageView4 = (ImageView) findViewById(R.id.imageView_battle_land);
-        imageView5 = (ImageView) findViewById(R.id.imageView_battle_reel);
-        waterLevel=imageView3.getTop();
-
-        textView=(TextView) findViewById(R.id.textView_battle_debug);
-
-        layout = (RelativeLayout) findViewById(R.id.layout_battle);
-        layout2 = (FrameLayout) findViewById(R.id.framelayout_battle);
-
-        Button button = (Button) findViewById(R.id.button_battle_back);
-        button.setOnClickListener(new View.OnClickListener(){
+        ViewTreeObserver vto = reelImage.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressWarnings("deprecation")
             @Override
-            public void onClick(View view){
-                finish();
+            public void onGlobalLayout() {
+                reelImage.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                pivotX = (double)(reelImage.getWidth())/2;
+                pivotY = (double)(reelImage.getHeight())/2;
             }
         });
+        tensionBar.setVisibility(View.INVISIBLE);
+        emptyTensionBar.setColorFilter(Color.BLACK, PorterDuff.Mode.SRC_IN);
+        emptyTensionBar.setPivotY(emptyTensionBar.getTop());
+        emptyTensionBar.setVisibility(View.INVISIBLE);
+        onBattle = false;
 
-        imageView3.setOnTouchListener(new View.OnTouchListener() {
+        battleView.setOnTouchListener(new View.OnTouchListener() {
+            float prevX;
+            float prevY;
+            float curX;
+            float curY;
             @Override
             public boolean onTouch(View view, MotionEvent event) {
-                if(onBattle)
-                    return true;
-                if(event.getX()>=0 && event.getX()<imageView4.getLeft()-imageView3.getLeft() &&
-                        event.getY()>=0 && event.getY()<=imageView3.getBottom()-imageView3.getTop()){
-                    if (line != null) {
-                        line.toX = (int) event.getX() + imageView3.getLeft();
-                        line.toY = (int) event.getY() + imageView3.getTop();
-                        line.cutY(waterLevel);
-                        line.invalidate();
-                    } else {
-                        waterLevel = imageView3.getTop();
-                        line = new Line(getApplicationContext(), Color.BLACK, imageView1.getLeft() + layout2.getLeft(),
-                                imageView1.getTop() + layout2.getTop(), (int) event.getX() + imageView3.getLeft(), (int) event.getY() + waterLevel);
-                        line.cutY(waterLevel);
-                        layout.addView(line);
-                    }
+                if(!initialized){
+                    rodModel = (RodModel)battleView.renderer.models.get(battleView.renderer.rodIndex.get(0));
+                    waterModel = (WaterModel)battleView.renderer.models.get(battleView.renderer.waterIndex.get(0));
+                    landModel = (LandModel)battleView.renderer.models.get(battleView.renderer.landIndex.get(0));
+                    lineModel = (LineModel)battleView.renderer.models.get(battleView.renderer.lineIndex.get(0));
+                    lineModel.setLineStart(rodModel.getRodEnd());
+                    initialized=true;
                 }
+                if (onBattle)
+                    return true;
+                curX=event.getX();  curY=event.getY();
+                float[] position = {curX, battleView.getHeight()-curY};
+                float[] waterPos = battleView.renderer.convertPos(position, waterModel.waterLevel); //waterModel에 사영된 좌표
+                float[] landPos = battleView.renderer.convertPos(position, landModel.landLevel);    //landModel에 사영된 좌표
+                if(!(landPos[0]>=landModel.left && landPos[0]<=landModel.right && landPos[1]>=landModel.back && landPos[1]<=landModel.front) &&
+                        (waterPos[0]>=waterModel.left && waterPos[0]<=waterModel.right && waterPos[1]>=waterModel.back && waterPos[1]<=waterModel.front)){
+                    lineModel.setFloatPos(waterPos);
+                }
+                battleView.requestRender();
 
-                if(event.getAction()==MotionEvent.ACTION_UP) {
+                if (event.getAction() == MotionEvent.ACTION_UP) {
                     Timer timer = new Timer();
                     if (stuck != null) {
                         stuck.cancel();
@@ -140,78 +138,77 @@ public class BattleActivity extends AppCompatActivity{
                             }
                         }
                     };
-                    textView.setText("");
+                    debugText.setText("");
                     timer.scheduleAtFixedRate(stuck, 0, 100);
+                }else if(event.getAction()==MotionEvent.ACTION_MOVE) {
+                    float dx = (curX - prevX) / battleView.getWidth() * 180.0f;
+                    //float dy = (curY - prevY) / battleView.getHeight() * 180.0f;
+                    battleView.renderer.setAngle(battleView.renderer.getAngle() + dx);
+                    battleView.requestRender();
                 }
+                prevX = curX;
+                prevY = curY;
                 return true;
             }
         });
-
-        imageView5.setOnTouchListener(new View.OnTouchListener() {
+        reelImage.setOnTouchListener(new View.OnTouchListener() {
             double prevAngle;
             double curAngle;
-            float prevX; float prevY;
-            float curX; float curY;
+            float prevX;
+            float prevY;
+            float curX;
+            float curY;
+
             @Override
             public boolean onTouch(View view, MotionEvent event) {
-                curX=event.getX();
-                curY=event.getY();
-                curAngle = Math.atan2(curY-pivotY, curX-pivotX);
-                if(event.getAction()==MotionEvent.ACTION_DOWN){
-                    state=REELING;
-                    prevAngle=curAngle; prevX=curX; prevY=curY;
-                }
-                else if(event.getAction()==MotionEvent.ACTION_UP){
-                    state=LOOSING;
-                }
-
-                int direction=-1;
-                if(curAngle>prevAngle || (curAngle<-Math.PI*2/3 && prevAngle>Math.PI*2/3)){
-                    direction=1;  //clockwise
+                curX = event.getX();
+                curY = event.getY();
+                curAngle = Math.atan2(curY - pivotY, curX - pivotX);
+                if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                    state = REELING;
+                    prevAngle = curAngle;
+                    prevX = curX;
+                    prevY = curY;
+                } else if (event.getAction() == MotionEvent.ACTION_UP) {
+                    state = LOOSING;
                 }
 
-                double curR = Math.sqrt((curX-pivotX)*(curX-pivotX)+(curY-pivotY)*(curY-pivotY));
-                if(curR>=pivotX*0.5 && curR <= pivotX*1.5){
-                    reelW += (Math.sqrt((prevX - curX) * (prevX - curX) + (prevY - curY) * (prevY - curY)) / pivotX)*direction;
+                int direction = -1;
+                if (curAngle > prevAngle || (curAngle < -Math.PI * 2 / 3 && prevAngle > Math.PI * 2 / 3)) {
+                    direction = 1;  //clockwise
                 }
-                prevAngle=curAngle; prevX=curX; prevY=curY;
+
+                double curR = Math.sqrt((curX - pivotX) * (curX - pivotX) + (curY - pivotY) * (curY - pivotY));
+                if (curR >= pivotX * 0.5 && curR <= pivotX * 1.5) {
+                    reelW += (Math.sqrt((prevX - curX) * (prevX - curX) + (prevY - curY) * (prevY - curY)) / pivotX) * direction;
+                }
+                prevAngle = curAngle;
+                prevX = curX;
+                prevY = curY;
                 return true;
             }
         });
     }
 
-
     private void beginBattle() {
         if(onBattle){
             return;
         }
-        pivotX = (double)(imageView5.getWidth())/2;
-        pivotY = (double)(imageView5.getHeight())/2;
         onBattle = true;
         handler.post(new Runnable() {
             @Override
             public void run() {
                 tensionBar.setVisibility(View.VISIBLE);
-                imageView1.setVisibility(View.INVISIBLE);
-                imageView2.setVisibility(View.VISIBLE);
-                tensionBar.setMax(600);
-                tensionBar.setProgress(0);
-
-                Display dis = ((WindowManager) getSystemService(WINDOW_SERVICE)).getDefaultDisplay();
-                DisplayMetrics metrics = new DisplayMetrics();
-                dis.getMetrics(metrics);
-                line.fromX = imageView2.getLeft()+layout2.getLeft();
-                line.fromY = imageView2.getTop()+layout2.getTop()+6*metrics.densityDpi/160;
-                line.cutY(waterLevel);
-                line.invalidate();
+                emptyTensionBar.setVisibility(View.VISIBLE);
+                emptyTensionBar.setScaleY(0);
             }
         });
-
         distance=1020;
         length=1000;
         maxStrength=150;
         strength=maxStrength;
         weight=100;
+        maxTension=600;
         tension=300;
         durability=100;
 
@@ -232,41 +229,36 @@ public class BattleActivity extends AppCompatActivity{
                 else if(state==LOOSING){
                     tension-=tension*ratio2 + 20*ratio2;
                     length-=(tension-strength)*ratio;
-                    /*if(strength>tension) {
-                        distance += (strength - tension)*(4.0)/BATTLE_FRAME;
-                    }*/
                 }
+
+                float[] tensionVector = new float[3];
+                for(int i=0; i<3; i++){
+                    tensionVector[i] = (float)(tension/30)*lineModel.getLineDirection()[i];
+                }
+                rodModel.setTension(tensionVector);
+                battleView.requestRender();
+
                 distance-=(tension-strength)*ratio;
                 if(distance<length){
                     distance=length;
                 }
-                if(distance<50) endBattle(true);
+                if(distance<50) {
+                    endBattle(true);
+                    return;
+                }
 
                 if(tension>450) {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            tensionBar.getProgressDrawable().setColorFilter(Color.RED, PorterDuff.Mode.SRC_IN);
-                        }
-                    });
                     durability -= (tension - 450)*(1.0/BATTLE_FRAME);
                     if(durability<0){
                         endBattle(false);
                         return;
                     }
                 }
-                else{
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            tensionBar.getProgressDrawable().clearColorFilter();
-                        }
-                    });
-                }
                 reelW=0;
 
                 if(tension>600 || tension<strength/4) {
                     endBattle(false);
+                    return;
                 }
                 if(tension>=300)
                     hp-=(tension-300)*(2.0/BATTLE_FRAME);
@@ -274,12 +266,13 @@ public class BattleActivity extends AppCompatActivity{
                 handler.post(new Runnable() {
                     @Override
                     public void run() {
-                        textView.setText("distance: "+(int)distance);
-                        textView.append("\nlength: "+(int)length);
-                        textView.append("\ntension: "+(int)tension);
-                        textView.append("\nfish strength: "+(int)strength);
-                        textView.append("\nfish hp: "+(int)hp);
-                        tensionBar.setProgress((int)tension);
+                        debugText.setText("");
+                        debugText.append("distance: "+(int)distance);
+                        debugText.append("\nlength: "+(int)length);
+                        debugText.append("\ntension: "+(int)tension);
+                        debugText.append("\nfish strength: "+(int)strength);
+                        debugText.append("\nfish hp: "+(int)hp);
+                        emptyTensionBar.setScaleY(1-(float)(tension/maxTension));
                     }
                 });
             }
@@ -295,13 +288,18 @@ public class BattleActivity extends AppCompatActivity{
             @Override
             public void run() {
                 tensionBar.setVisibility(View.INVISIBLE);
-                imageView1.setVisibility(View.VISIBLE);
-                imageView2.setVisibility(View.INVISIBLE);
-                line.setVisibility(View.INVISIBLE);
-                layout.removeView(line);
-                line = null;
+                emptyTensionBar.setVisibility(View.INVISIBLE);
+                if(win){
+                    debugText.append("\nwin!");
+                }
+                else{
+                    debugText.append("\nlose!");
+                }
             }
         });
+        rodModel.setTension(new float[3]);
+        lineModel.initFloatPos();
+        battleView.requestRender();
         state=LOOSING;
         battle.cancel();
     }
