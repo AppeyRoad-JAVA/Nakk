@@ -60,4 +60,8 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, BattleActivity.class);
         startActivity(intent);
     }
+
+    public void onFishClicked(View view) {
+        startActivity(new Intent(this, FishActivity.class));
+    }
 }
