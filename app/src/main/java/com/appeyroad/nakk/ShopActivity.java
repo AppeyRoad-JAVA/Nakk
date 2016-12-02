@@ -17,26 +17,16 @@
  * along with Nakk.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
+package com.appeyroad.nakk;
 
-buildscript {
-    repositories {
-        jcenter()
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
+
+public class ShopActivity extends AppCompatActivity {
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_shop);
     }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:2.2.0'
-
-        // NOTE: Do not place your application dependencies here; they belong
-        // in the individual module build.gradle files
-    }
-}
-
-allprojects {
-    repositories {
-        jcenter()
-    }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }

@@ -19,10 +19,12 @@
 
 package com.appeyroad.nakk;
 
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MotionEvent;
 import android.view.View;
@@ -289,8 +291,22 @@ public class BattleActivity extends AppCompatActivity {
             public void run() {
                 tensionBar.setVisibility(View.INVISIBLE);
                 emptyTensionBar.setVisibility(View.INVISIBLE);
-                if(win){
+                if(win) {
                     debugText.append("\nwin!");
+                    ImageView image = new ImageView(BattleActivity.this);
+                    image.setImageResource(R.drawable.battle_reel);
+
+                    AlertDialog.Builder builder =
+                            new AlertDialog.Builder(BattleActivity.this).
+                                    setMessage("성공!").
+                                    setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            dialog.dismiss();
+                                        }
+                                    }).
+                                    setView(image);
+                    builder.create().show();
                 }
                 else{
                     debugText.append("\nlose!");
